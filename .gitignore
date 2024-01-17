@@ -24,5 +24,5 @@ hs_err_pid*
 replay_pid*
 
 # Datasets
-./1-BooleanRetrieval/davisWiki/
-./1-BooleanRetrieval/guardian/
+1-BooleanRetrieval/davisWiki/
+1-BooleanRetrieval/guardian/
