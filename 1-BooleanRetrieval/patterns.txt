@@ -13,11 +13,26 @@
 // wish.
 
 
-// Twenty-four seven
-\d+/\d+
+
 
 
 // ADD YOUR PATTERNS HERE
+
+// Urls
+https?://([\.\/\:\?\#\+\=\&\-\,\%\@\!]*[A-Za-z0-9_]+)*\/?
+// email
+([A-Za-z0-9_]+)?\.*[A-Za-z0-9_]+@[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)+
+// hyphenated words (now -)
+[A-Za-z0-9]+([-\,\.][A-Za-z0-9]+)+
+// abbreviations
+[A-Za-z]+\.([A-Za-z]+\.)+
+// ip-address
+[0-9]+(\.[0-9]+)+
+// Twenty-four seven
+\d+/\d+
+// phone number
+\+[0-9]+
+
 
 // The patterns will be tried from top to bottom, so it is a
 // good idea to put more specific patterns above more general
