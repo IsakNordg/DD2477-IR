@@ -29,6 +29,12 @@ public class HashedIndex implements Index {
         //
         // YOUR CODE HERE
         //
+        if(index.get(token) == null){
+            PostingsList pl = new PostingsList();
+            PostingsEntry pe = new PostingsEntry(docID);
+            pe.addOffset(offset);
+            pl.add(pe);
+            index.put(token, pl);
     }
 
 
