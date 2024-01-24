@@ -32,9 +32,32 @@ public class Searcher {
         //
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE
         //
-        if(query.size() == 1){
+        if(query.size() == 1 && queryType == QueryType.INTERSECTION_QUERY){
             return index.getPostings(query.queryterm.get(0).term);
+        }else if(query.size() > 1 && queryType == QueryType.INTERSECTION_QUERY){
+            PostingsList pl = index.getPostings(query.queryterm.get(0).term);
+            for(int i = 1; i < query.size(); i++){
+                pl = intersect(pl, index.getPostings(query.queryterm.get(i).term));
+            }
+            return pl;
         }
         return null;
+    }
+
+    private PostingsList intersect(PostingsList pl1, PostingsList pl2){
+        PostingsList pl = new PostingsList();
+        int i = 0, j = 0;
+        
+        while(i < pl1.size() && j < pl2.size()){
+            if(pl1.get(i).docID == pl2.get(j).docID){
+                pl.add(pl1.get(i));
+                i++; j++;
+            }else if(pl1.get(i).docID < pl2.get(j).docID){
+                i++;
+            }else{
+                j++;
+            }
+        }
+        return pl;
     }
 }

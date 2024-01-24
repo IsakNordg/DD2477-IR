@@ -34,6 +34,7 @@ public class HashedIndex implements Index {
         if(index.get(token) == null){
             PostingsList pl = new PostingsList();
             PostingsEntry pe = new PostingsEntry(docID);
+            pe.offset.add(offset);
             pl.add(pe);
             index.put(token, pl);
         }
@@ -41,8 +42,13 @@ public class HashedIndex implements Index {
         else{
             PostingsList pl = index.get(token);
             PostingsEntry pe = new PostingsEntry(docID);
-            pl.add(pe);
-            index.put(token, pl);
+            if(pl.get(pl.size()-1).docID != docID){
+                pe.offset.add(offset);
+                pl.add(pe);
+                index.put(token, pl);
+            }else{
+                pl.get(pl.size()-1).offset.add(offset);
+            }
         }
     }
 
