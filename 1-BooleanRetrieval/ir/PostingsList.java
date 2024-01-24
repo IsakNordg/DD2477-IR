@@ -25,13 +25,13 @@ public class PostingsList {
         return list.get( i );
     }
 
-    // 
-    //  YOUR CODE HERE
-    //
     public void add(PostingsEntry pe){
         list.add(pe);
     }
 
+    public boolean contains(PostingsEntry pe){
+        return list.contains(pe);
+    }
     
 }
 

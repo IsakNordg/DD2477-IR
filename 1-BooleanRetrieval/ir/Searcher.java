@@ -34,12 +34,31 @@ public class Searcher {
         //
         if(query.size() == 1 && queryType == QueryType.INTERSECTION_QUERY){
             return index.getPostings(query.queryterm.get(0).term);
-        }else if(query.size() > 1 && queryType == QueryType.INTERSECTION_QUERY){
+        }else{
             PostingsList pl = index.getPostings(query.queryterm.get(0).term);
+            
+            // Get intersection of all words
             for(int i = 1; i < query.size(); i++){
                 pl = intersect(pl, index.getPostings(query.queryterm.get(i).term));
             }
-            return pl;
+            
+            if(queryType == QueryType.INTERSECTION_QUERY){
+                return pl;
+            }
+            else if(queryType == QueryType.PHRASE_QUERY){
+                // Each interesting PostingsEntry
+                for(int i = 0; i < pl.size(); i++){
+                    int curDoc = pl.get(i).docID;
+                    // each offset in the current PostingEntry
+                    for(int j = 0; j < pl.get(i).offset.size(); j++){
+                        int curOffset = (int) pl.get(i).offset.get(j);
+                        // each term to avoid recursion
+                        for(int k = 0; k < query.queryterm.size(); k++){
+                            
+                        }    
+                    }
+                }
+            }
         }
         return null;
     }
@@ -60,4 +79,12 @@ public class Searcher {
         }
         return pl;
     }
+
+    private PostingsEntry phraseQuery(Query query){
+        String current = query.queryterm.get(index).term;
+        
+
+    }
 }
+
+    
