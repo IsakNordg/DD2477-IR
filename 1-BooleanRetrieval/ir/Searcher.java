@@ -32,6 +32,9 @@ public class Searcher {
         //
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE
         //
+        if(query.size() == 1){
+            return index.getPostings(query.queryterm.get(0).term);
+        }
         return null;
     }
 }
