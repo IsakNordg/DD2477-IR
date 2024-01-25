@@ -29,9 +29,10 @@ public class PostingsList {
         list.add(pe);
     }
 
+    /* 
     public boolean contains(PostingsEntry pe){
         return list.contains(pe);
     }
-    
+    */
 }
 

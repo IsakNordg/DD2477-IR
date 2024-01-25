@@ -29,7 +29,7 @@ public class HashedIndex implements Index {
         //
         // YOUR CODE HERE
         //
-
+        
         // new token
         if(index.get(token) == null){
             PostingsList pl = new PostingsList();
