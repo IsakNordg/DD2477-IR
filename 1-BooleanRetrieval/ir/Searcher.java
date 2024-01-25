@@ -49,29 +49,40 @@ public class Searcher {
                 return pl;
             }
             else if(queryType == QueryType.PHRASE_QUERY){
-                boolean match = false;
-                // Each interesting PostingsEntry
-                for(int i = 0; i < pl.size(); i++){ // Error here
-                    int curDoc = pl.get(i).docID;
-                    // each offset in the current PostingEntry
-                    for(int j = 0; j < pl.get(i).offset.size(); j++){
-                        int curOffset = (int) pl.get(i).offset.get(j);
-                        match = true;
-                        for(int k = 1; k < query.queryterm.size(); k++){
-                            PostingsList plNext = index.getPostings(query.queryterm.get(k).term);
-                            PostingsEntry peNext = plNext.get(curDoc);
-                            if(!peNext.offset.contains(curOffset+1)){
-                                match = false;
+                PostingsList firstList = index.getPostings(query.queryterm.get(0).term);
+                if(query.queryterm.size() == 1){
+                    return firstList;
+                }else{
+                    boolean match = false;
+
+                    // Each interesting PostingsEntry
+                    for(int i = 0; i < pl.size(); i++){
+                        System.out.print(i);
+                        System.out.print(": ");
+                        int curDoc = firstList.get(i).docID;
+                        // each offset in the current PostingEntry
+                        for(int j = 0; j < pl.get(i).offset.size(); j++){
+                            System.out.print(j);
+                            System.out.print(", ");
+                            int curOffset = (int) pl.get(i).offset.get(j);
+                            match = true;
+                            for(int k = 1; k < query.queryterm.size(); k++){
+                                PostingsList plNext = index.getPostings(query.queryterm.get(k).term);
+                                PostingsEntry peNext = plNext.get(curDoc);
+                                if(!peNext.offset.contains(curOffset+1)){
+                                    match = false;
+                                    break;
+                                }
+                            }
+                            if(match){
+                                result.add(pl.get(i));
                                 break;
                             }
                         }
-                        if(match){
-                            result.add(pl.get(i));
-                            break;
-                        }
-                    }    
+                        System.out.println();
+                    }
+                    return result;
                 }
-                return result;
             }
         }
         return null;
