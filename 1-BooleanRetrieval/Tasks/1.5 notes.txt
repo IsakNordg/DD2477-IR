@@ -1,0 +1,46 @@
+	Biological_Systems_Engineering.f
+Some references, like math and programs, but nothing of substance
+	Candidate_Statements.f
+Expected setting, but it has nothing to do with a program in graduate mathematics
+	Computer_Science.f
+Same as above. Maybe some more references to a program but not in math
+	Computer_Science.f
+Same as above.
+	ECE_Course_Reviews.f
+Course evaluations that can be relevant if you're searching for programs, but still only marginally
+	Economics.f	# Difficult case
+Course evaluations of economic courses.
+Can be difficult because it is technically math, but very applied
+	Elaine_Kasimatis.f
+Description of professor in math. References to the subject
+	Evelyn_Silvia.f
+Similar to above. Is related to a relevant program
+	Events_Calendars.f
+Just a bunch of links
+	Fiber_and_Polymer_Science.f
+Similar to searched query, but not explicitly related to mathematics
+	Hydrology.f
+Not a related subject, but could be argued to be a 1
+	Mathematics.f
+Contains descriptions of graduate programs in mathematics
+	MattHh.f	# Difficult case
+References math program and invites to conversation about math-academics
+Difficult because it talks about math but it's not really a source for information.
+	Private_Tutoring.f
+List of private tutors. Not relevant
+	Quantitative_Biology_and_Bioinformatics.f
+Not relevant
+	Statistics.f	# Difficult case
+Highly relevant, but hard to find using a query since it is a program in statistics (but it does not say program in mathematics explicitly)
+	Student_Organizations.f
+Not relevant
+	UCD_Honors_and_Prizes.f
+Not relevant
+	UC_Davis_English_Department.f
+Not relevant to math
+	University_Departments.f
+Just a list, mentions math but briefly
+	What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f
+Not related to math
+	Wildlife%2C_Fish%2C_and_Conservation_Biology.f
+Not relevant, only mentions math

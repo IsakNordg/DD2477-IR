@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class PostingsList {
     
     /** The postings list */
-    private ArrayList<PostingsEntry> list = new ArrayList<PostingsEntry>();
+    public ArrayList<PostingsEntry> list = new ArrayList<PostingsEntry>();
 
 
     /** Number of postings in this list. */
@@ -27,6 +27,20 @@ public class PostingsList {
 
     public void add(PostingsEntry pe){
         list.add(pe);
+    }
+
+    public boolean hasEntry(PostingsEntry pe){
+        for(int i = 0; i < list.size(); i++){
+            if(list.get(i).docID == pe.docID) return true;
+        }
+        return false;
+    }
+
+    public PostingsEntry getFromDocID(int docID){
+        for(int i = 0; i < list.size(); i++){
+            if(list.get(i).docID == docID) return list.get(i);
+        }
+        return null;
     }
 }
 

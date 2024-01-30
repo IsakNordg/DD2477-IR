@@ -57,29 +57,25 @@ public class Searcher {
 
                     // Each interesting PostingsEntry
                     for(int i = 0; i < pl.size(); i++){
-                        System.out.print(i);
-                        System.out.print(": ");
-                        int curDoc = firstList.get(i).docID;
+                        int curDoc = pl.get(i).docID;
                         // each offset in the current PostingEntry
                         for(int j = 0; j < pl.get(i).offset.size(); j++){
-                            System.out.print(j);
-                            System.out.print(", ");
                             int curOffset = (int) pl.get(i).offset.get(j);
                             match = true;
                             for(int k = 1; k < query.queryterm.size(); k++){
                                 PostingsList plNext = index.getPostings(query.queryterm.get(k).term);
-                                PostingsEntry peNext = plNext.get(curDoc);
+                                PostingsEntry peNext = plNext.getFromDocID(curDoc);
                                 if(!peNext.offset.contains(curOffset+1)){
                                     match = false;
                                     break;
                                 }
+                                curOffset++;
                             }
                             if(match){
                                 result.add(pl.get(i));
                                 break;
                             }
                         }
-                        System.out.println();
                     }
                     return result;
                 }
