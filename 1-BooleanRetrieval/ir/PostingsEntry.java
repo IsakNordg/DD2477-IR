@@ -40,5 +40,14 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         this.docID = docID;
     }
     
+    public String toString(){
+        String s = Integer.toString(docID) + ":";
+        s += offset.get(0);
+        for(int i = 1; i < offset.size(); i++){
+            s += "," + offset.get(i);
+        }
+        s += ";";
+        return s;
+    }
 }
 

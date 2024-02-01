@@ -62,9 +62,18 @@ public class PersistentHashedIndex implements Index {
      *   A helper class representing one entry in the dictionary hashtable.
      */ 
     public class Entry {
+        private String token;
+        private long ptr;
+
         //
         //  YOUR CODE HERE
         //
+
+        public Entry(String token, long ptr){
+            this.token = token;
+            this.ptr = ptr;
+        }
+
     }
 
 
@@ -135,10 +144,45 @@ public class PersistentHashedIndex implements Index {
      *  @param entry The key of this entry is assumed to have a fixed length
      *  @param ptr   The place in the dictionary file to store the entry
      */
-    void writeEntry( Entry entry, long ptr ) {
+    void writeEntry( Entry entry, long ptr ) throws IOException{
         //
         //  YOUR CODE HERE
         //
+        String dataPtr = Long.toString(entry.ptr);
+        if(dataPtr.length() < 7){
+            for(int i = dataPtr.length(); i < 7; i++){
+                dataPtr = "0" + dataPtr;
+            }
+        }
+        String identifier = Integer.toString(entry.token.hashCode());
+        if(identifier.length() < 19){
+            for(int i = identifier.length(); i < 19; i++){
+                identifier = "0" + identifier;
+            }
+        }else if(identifier.length() > 20){
+            identifier = identifier.substring(0, 19);
+        }
+
+        try{
+            // check if entry already exists
+            int i = 1;
+            while(true){
+                dictionaryFile.seek(ptr * (19 + 6) * i % TABLESIZE);
+                if(dictionaryFile.readChar() != 0){
+                    i++;
+                }else{  
+                    break;
+                }
+            }
+            byte[] toWrite = (dataPtr+identifier).getBytes();
+            dictionaryFile.write(toWrite);
+            // dictionaryFile.writeChars(dataPtr+identifier);
+            // Borde nog skriva allt som bytes istället för chars
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -203,14 +247,22 @@ public class PersistentHashedIndex implements Index {
             writeDocInfo();
 
             // Write the dictionary and the postings list
+            for(String token : index.keySet()){
+                PostingsList pl = index.get(token);
+                String stringRepresentation = pl.toString();
+                free += writeData(stringRepresentation, free);
 
-            // 
-            //  YOUR CODE HERE
-            //
+                Entry entry = new Entry(token, free);
+
+                writeEntry(entry, Math.abs(token.hashCode() % TABLESIZE));
+            }
+            
+            
         } catch ( IOException e ) {
             e.printStackTrace();
         }
         System.err.println( collisions + " collisions." );
+        
     }
 
 
@@ -225,7 +277,7 @@ public class PersistentHashedIndex implements Index {
         //
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE
         //
-        return null;
+        return index.get(token);
     }
 
 
@@ -236,6 +288,27 @@ public class PersistentHashedIndex implements Index {
         //
         //  YOUR CODE HERE
         //
+
+        // new token
+        if(index.get(token) == null){
+            PostingsList pl = new PostingsList();
+            PostingsEntry pe = new PostingsEntry(docID);
+            pe.offset.add(offset);
+            pl.add(pe);
+            index.put(token, pl);
+        }
+        // existing token
+        else{
+            PostingsList pl = index.get(token);
+            PostingsEntry pe = new PostingsEntry(docID);
+            if(pl.get(pl.size()-1).docID != docID){
+                pe.offset.add(offset);
+                pl.add(pe);
+                index.put(token, pl);
+            }else{
+                pl.get(pl.size()-1).offset.add(offset);
+            }
+        }
     }
 
 

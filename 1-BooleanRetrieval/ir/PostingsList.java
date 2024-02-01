@@ -42,5 +42,14 @@ public class PostingsList {
         }
         return null;
     }
+
+    public String toString(){
+        String s = "";
+        for(int i = 0; i < list.size(); i++){
+            s += list.get(i).toString();
+        }
+        s += "\n";
+        return s;
+    }
 }
 
