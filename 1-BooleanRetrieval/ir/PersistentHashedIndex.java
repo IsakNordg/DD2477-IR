@@ -62,16 +62,16 @@ public class PersistentHashedIndex implements Index {
      *   A helper class representing one entry in the dictionary hashtable.
      */ 
     public class Entry {
-        private String token;
         private long ptr;
+        private String repr;
 
         //
         //  YOUR CODE HERE
         //
 
-        public Entry(String token, long ptr){
-            this.token = token;
+        public Entry(long ptr, String repr){
             this.ptr = ptr;
+            this.repr = repr;
         }
 
     }
@@ -144,42 +144,21 @@ public class PersistentHashedIndex implements Index {
      *  @param entry The key of this entry is assumed to have a fixed length
      *  @param ptr   The place in the dictionary file to store the entry
      */
-    void writeEntry( Entry entry, long ptr ) throws IOException{
+    void writeEntry( Entry entry, long ptr ){
         //
         //  YOUR CODE HERE
         //
-        String dataPtr = Long.toString(entry.ptr);
-        if(dataPtr.length() < 7){
-            for(int i = dataPtr.length(); i < 7; i++){
-                dataPtr = "0" + dataPtr;
+        String data = Long.toString(entry.ptr);
+        if(data.length() < 6){
+            for(int i = 0; i < 6-data.length(); i++){
+                data = "0" + data;
             }
         }
-        String identifier = Integer.toString(entry.token.hashCode());
-        if(identifier.length() < 19){
-            for(int i = identifier.length(); i < 19; i++){
-                identifier = "0" + identifier;
-            }
-        }else if(identifier.length() > 20){
-            identifier = identifier.substring(0, 19);
-        }
 
-        try{
-            // check if entry already exists
-            int i = 1;
-            while(true){
-                dictionaryFile.seek(ptr * (19 + 6) * i % TABLESIZE);
-                if(dictionaryFile.readChar() != 0){
-                    i++;
-                }else{  
-                    break;
-                }
-            }
-            byte[] toWrite = (dataPtr+identifier).getBytes();
-            dictionaryFile.write(toWrite);
-            // dictionaryFile.writeChars(dataPtr+identifier);
-            // Borde nog skriva allt som bytes istället för chars
-
-        }catch(IOException e){
+        try {
+            dataFile.seek( ptr ); 
+            dictionaryFile.writeChars(data);
+        } catch ( IOException e ) {
             e.printStackTrace();
         }
 
@@ -190,11 +169,39 @@ public class PersistentHashedIndex implements Index {
      *
      *  @param ptr The place in the dictionary file where to start reading.
      */
-    Entry readEntry( long ptr ) {   
+    Entry readEntry( long ptr ) throws IOException {   
         //
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE 
         //
-        return null;
+        dictionaryFile.seek(ptr*2); // *2 because of char size
+        System.out.println("ptr: " + (ptr*2));
+        String dataPtr = "";
+        for(int i = 0; i < 6; i++){
+            try {
+                dataPtr += Character.toString(dictionaryFile.readChar());
+                dictionaryFile.seek(ptr*2 + i*2);
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
+        dataFile.seek(Integer.parseInt(dataPtr) * 2);
+
+        String data = "";
+        String next = "";
+        while(true){
+            try {
+                next = Character.toString(dataFile.readChar());
+                if(next == "\n") break;
+                data += next;
+                System.out.println("data: " + data + "next: " + next + "ptr: " + dataPtr + "*2");
+            } catch ( IOException e ) {
+                System.out.println("Crash in readEntry while loop");
+                e.printStackTrace();
+                break;
+            }
+        }
+        System.out.println("data: " + data);
+        return new Entry(ptr, data);
     }
 
 
@@ -252,9 +259,9 @@ public class PersistentHashedIndex implements Index {
                 String stringRepresentation = pl.toString();
                 free += writeData(stringRepresentation, free);
 
-                Entry entry = new Entry(token, free);
+                Entry entry = new Entry(free, stringRepresentation);
 
-                writeEntry(entry, Math.abs(token.hashCode() % TABLESIZE));
+                writeEntry(entry, (Math.abs(token.hashCode() % TABLESIZE/6) * 6));
             }
             
             
@@ -277,7 +284,29 @@ public class PersistentHashedIndex implements Index {
         //
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE
         //
-        return index.get(token);
+        String repr = null;
+        try{
+            Entry entry = readEntry((Math.abs(token.hashCode() % TABLESIZE/6) * 6));    // crash here
+            repr = entry.repr;
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        if(repr == null) return null;
+        
+        PostingsList pl = new PostingsList();
+        String[] postings = repr.split(";");
+
+        for(int i = 0; i < postings.length; i++){
+            String[] data = postings[i].split(":");
+            PostingsEntry pe = new PostingsEntry(Integer.parseInt(data[0]));
+            String[] offsets = data[1].split(",");
+            for(int j = 0; j < offsets.length; j++){
+                pe.offset.add(Integer.parseInt(offsets[j]));
+            }
+            pl.add(pe);
+        }
+
+        return pl;
     }
 
 
