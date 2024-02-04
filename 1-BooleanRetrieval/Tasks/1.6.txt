@@ -1,0 +1,91 @@
+1ST ITERATION
+Query: graduate mathematics program UC Davis
+1 Candidate_Statements.f 0
+1 Computer_Science.f 0
+1 ECE_Course_Reviews.f 1
+1 Economics.f 0
+1 Elaine_Kasimatis.f 1
+1 Evelyn_Silvia.f 1
+1 Events_Calendars.f 0
+1 Hydrology.f 0
+1 Mathematics.f 3
+1 MattHh.f 1
+1 Private_Tutoring.f 0
+1 Statistics.f 3
+1 Student_Organizations.f 0
+1 UCD_Honors_and_Prizes.f 0
+1 UC_Davis_English_Department.f 0
+1 University_Departments.f 0
+1 What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f 0
+1 Wildlife%2C_Fish%2C_and_Conservation_Biology.f 0
+
+Precision: 6/18 = 0.33
+Recall: 6/100 = 0.06
+
+---------------------------------------------------------------
+2ND ITERATION
+Query: graduate mathematics program UC Davis apply
+1 Candidate_Statements.f 0
+1 Computer_Science.f 0
+1 ECE_Course_Reviews.f 1
+1 Private_Tutoring.f 0
+1 Statistics.f 3
+1 UCD_Honors_and_Prizes.f 0
+1 What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f 0
+
+Precision: 2/7 = 0.29
+Recall: 2/100 = 0.02
+
+---------------------------------------------------------------
+3RD ITERATION
+Query: graduate program mathematics UC Davis application
+1 Computer_Science.f 0
+1 ECE_Course_Reviews.f 1
+1 Mathematics.f 3
+1 MattHh.f 1
+1 Statistics.f 3
+1 UCD_Honors_and_Prizes.f 0
+1 What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f 0
+
+Precision: 4/7 = 0.57
+Recall: 4/100 = 0.04
+
+---------------------------------------------------------------
+4TH ITERATION
+Query: graduate program mathematics UC Davis application starts
+1 ECE_Course_Reviews.f 1
+1 Mathematics.f 3
+
+Precision: 2/2 = 1
+Recall: 2/100 = 0.02
+
+---------------------------------------------------------------
+5TH ITERATION
+Query: mathematics program Davis application
+1 %28Quantity%29squared.f 0
+1 2011_Archive.f 0
+1 All%C3%A9gre_Apartments.f 0
+1 Computer_Science.f 0
+1 ECE_Course_Reviews.f 1
+1 Mathematics.f 3
+1 MattHh.f 1
+1 Statistics.f 3
+1 UCD_Honors_and_Prizes.f 0
+1 What_I_Wish_I_Knew...Before_Coming_to_UC_Davis_Entomology.f 0
+1 Wiki_History.f 0
+
+Precision: 4/11 = 0.36
+Recall: 4/100 = 0.04
+
+---------------------------------------------------------------
+COMMENTS and CONCLUSION
+
+The "optimal" query i landed on is:
+
+	"graduate program mathematics UC Davis application" 
+
+This is because it gives quite a good precision. The recall, however, is terrible, but I feel like it is hard to get a good recall in this task given that only 25 results can be returned and we assume there are 100 relevant documents in total.
+
+I think that this query gives a good precision because documents that aim to describe the program would reference the application to it, while documents that are not relevant are more likely to not contain "application".
+
+Adding more words can increase the precision since it "filters out" more documents, but using our assumption that there are 100 documents of relevance, it reduces the recall.

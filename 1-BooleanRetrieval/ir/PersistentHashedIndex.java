@@ -72,6 +72,10 @@ public class PersistentHashedIndex implements Index {
     /** The cache as a main-memory hash map. */
     HashMap<String,PostingsList> index = new HashMap<String,PostingsList>();
 
+    public long readtime = 0;
+    public long parseTime = 0;
+    public long seekTime = 0;
+
 
     // ===================================================================
 
@@ -247,23 +251,38 @@ public class PersistentHashedIndex implements Index {
         //
         long ptr = getDictPtr(token);
         String hash = token;
+
         while(true){
+            long start = System.nanoTime();
             dictionaryFile.seek( ptr );
             byte[] read = new byte[ENTRYSIZE];
             dictionaryFile.readFully( read );
             String dictEntry = new String(read);
+            long end = System.nanoTime();
+            readtime += end - start;
 
+            start = System.nanoTime();
             long dataPtr = Long.parseLong(dictEntry.substring(0, MAXDATAPTRLENGTH));
             long size = Long.parseLong(dictEntry.substring(MAXDATAPTRLENGTH, MAXDATAPTRLENGTH + MAXLENGTH));
             String checksum = dictEntry.substring(MAXDATAPTRLENGTH + MAXLENGTH, MAXDATAPTRLENGTH + MAXLENGTH + HASHLENGTH);
+            end = System.nanoTime();
+            parseTime += end - start;
 
+            start = System.nanoTime();
             if(checksum.equals(getChecksum(token))){
+                System.out.println("readtime:  " + readtime);
+                System.out.println("parsetime: " + parseTime);
+                System.out.println("seektime:  " + seekTime);
                 return new Entry(token, dataPtr, readData(dataPtr, (int)size), (int)size);
             }else{
+                System.out.println("Collision detected");
                 ptr = getDictPtr(getChecksum(hash));
                 hash = getChecksum(hash);
             }
+            end = System.nanoTime();
+            seekTime += end - start;
         }
+        
     }
 
 

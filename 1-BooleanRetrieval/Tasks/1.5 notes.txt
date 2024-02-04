@@ -44,3 +44,10 @@ Just a list, mentions math but briefly
 Not related to math
 	Wildlife%2C_Fish%2C_and_Conservation_Biology.f
 Not relevant, only mentions math
+
+
+----------------------------------
+PRECISION AND RECALL
+
+Precision = 7/22 = 0.32
+Recall = 7/100 = 0.07
