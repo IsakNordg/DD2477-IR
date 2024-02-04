@@ -50,7 +50,7 @@ public class PersistentHashedIndex implements Index {
     public static final int MAXLENGTH = 6;  // 6 is an assumption
 
     /** The length of a hash saved to check for collisions */
-    public static final int HASHLENGTH = 10;
+    public static final int HASHLENGTH = 64;
 
     /** The length of the data entry */
     public static final int MAXDATAPTRLENGTH = 10;  // 10 is an assumption
@@ -169,8 +169,6 @@ public class PersistentHashedIndex implements Index {
         //
         //  YOUR CODE HERE
         //
-
-        long ptr = getDictPtr(entry.token);
         
         // pad data
         String data = Long.toString(entry.ptr);
@@ -187,33 +185,27 @@ public class PersistentHashedIndex implements Index {
             size = "0" + size;
         }
 
-        // hash the token
-        String hash = Integer.toString(Math.abs(getSHA(entry.token)));
+        String checksum = getChecksum(entry.token);
 
-        // pad/trim hash
-        if(hash.length() > HASHLENGTH){
-            hash = hash.substring(0, HASHLENGTH);
-        } 
-        while(hash.length() < HASHLENGTH){
-            hash = "0" + hash;
-        }
+        long ptr = getDictPtr(entry.token);
+        String hash = entry.token;
 
         try {
             // check for collision
             while(true){
-                if(dictionaryFile.length() > ptr && ptr != 0){
+                if(dictionaryFile.length() > ptr + ENTRYSIZE){
                     dictionaryFile.seek( ptr );
                     byte[] read = new byte[ENTRYSIZE];
                     dictionaryFile.readFully( read );
                     String dictEntry = new String(read);
                     if(dictEntry.matches(".*\\d.*")){
-                        ptr = getDictPtr(Long.toString(ptr));
+                        ptr = getDictPtr(getChecksum(hash));
+                        hash = getChecksum(hash);
                         collisions++;
                     }else{
                         break;
                     }
-                }
-                else{
+                }else{
                     break;
                 }
             }
@@ -224,8 +216,8 @@ public class PersistentHashedIndex implements Index {
             dictionaryFile.write( dataToWrite );
             byte[] sizeToWrite = size.getBytes();
             dictionaryFile.write( sizeToWrite );
-            byte[] hashToWrite = hash.getBytes();
-            dictionaryFile.write( hashToWrite );
+            byte[] checksumToWrite = checksum.getBytes();
+            dictionaryFile.write( checksumToWrite );
 
             /* 
             // debug
@@ -254,9 +246,8 @@ public class PersistentHashedIndex implements Index {
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE 
         //
         long ptr = getDictPtr(token);
-        String checkToken = token;
+        String hash = token;
         while(true){
-
             dictionaryFile.seek( ptr );
             byte[] read = new byte[ENTRYSIZE];
             dictionaryFile.readFully( read );
@@ -264,14 +255,13 @@ public class PersistentHashedIndex implements Index {
 
             long dataPtr = Long.parseLong(dictEntry.substring(0, MAXDATAPTRLENGTH));
             long size = Long.parseLong(dictEntry.substring(MAXDATAPTRLENGTH, MAXDATAPTRLENGTH + MAXLENGTH));
-            long hash = Long.parseLong(dictEntry.substring(MAXDATAPTRLENGTH + MAXLENGTH, MAXDATAPTRLENGTH + MAXLENGTH + HASHLENGTH));
+            String checksum = dictEntry.substring(MAXDATAPTRLENGTH + MAXLENGTH, MAXDATAPTRLENGTH + MAXLENGTH + HASHLENGTH);
 
-            // check if the hash is correct
-            if(hash == getSHA(checkToken)){
+            if(checksum.equals(getChecksum(token))){
                 return new Entry(token, dataPtr, readData(dataPtr, (int)size), (int)size);
             }else{
-                ptr = getDictPtr(Long.toString(ptr));
-                checkToken = Long.toString(ptr);
+                ptr = getDictPtr(getChecksum(hash));
+                hash = getChecksum(hash);
             }
         }
     }
@@ -384,11 +374,7 @@ public class PersistentHashedIndex implements Index {
         }catch(NoSuchAlgorithmException e){
             e.printStackTrace();
         }
-
-
         return null;
-
-        
     }
 
 
@@ -437,7 +423,7 @@ public class PersistentHashedIndex implements Index {
         return Math.abs((getSHA(token) % TABLESIZE) * ENTRYSIZE);
     }
 
-    public static int getSHA(String input) throws NoSuchAlgorithmException
+    public static long getSHA(String input) throws NoSuchAlgorithmException
     {
         // Static getInstance method is called with hashing SHA
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -447,9 +433,21 @@ public class PersistentHashedIndex implements Index {
         // and return array of byte
         
 
-        int hash = 0;
+        long hash = 0;
         ByteBuffer wrapped = ByteBuffer.wrap(md.digest(input.getBytes(StandardCharsets.UTF_8)));
         hash = wrapped.getInt();
-        return hash; 
+        return hash;
+    }
+
+    private static String getChecksum(String token) throws NoSuchAlgorithmException{
+
+        String hash = Long.toString(Math.abs(getSHA(token)));
+        
+        // pad hash
+        while(hash.length() < HASHLENGTH){
+            hash = "0" + hash;
+        }
+
+        return hash;
     }
 }
