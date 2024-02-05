@@ -7,6 +7,8 @@
 
 package ir;
 
+import java.util.ArrayList;
+
 /**
  *  Searches an index for results of a query.
  */
@@ -54,6 +56,11 @@ public class Searcher {
                     return firstList;
                 }else{
                     boolean match = false;
+                    
+                    ArrayList<PostingsList> plList = new ArrayList<PostingsList>();
+                    for(int k = 1; k < query.queryterm.size(); k++){
+                        plList.add(index.getPostings(query.queryterm.get(k).term));
+                    }
 
                     // Each interesting PostingsEntry
                     for(int i = 0; i < pl.size(); i++){
@@ -62,8 +69,8 @@ public class Searcher {
                         for(int j = 0; j < pl.get(i).offset.size(); j++){
                             int curOffset = (int) pl.get(i).offset.get(j);
                             match = true;
-                            for(int k = 1; k < query.queryterm.size(); k++){
-                                PostingsList plNext = index.getPostings(query.queryterm.get(k).term);
+                            for(int k = 0; k < plList.size(); k++){
+                                PostingsList plNext = plList.get(k);
                                 PostingsEntry peNext = plNext.getFromDocID(curDoc);
                                 if(!peNext.offset.contains(curOffset+1)){
                                     match = false;
