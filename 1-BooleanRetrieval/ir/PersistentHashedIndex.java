@@ -79,10 +79,10 @@ public class PersistentHashedIndex implements Index {
      *   A helper class representing one entry in the dictionary hashtable.
      */ 
     public class Entry {
-        private String token;
-        private long ptr;
-        private String repr;
-        private int size;
+        protected String token;
+        protected long ptr;
+        protected String repr;
+        protected int size;
 
         //
         //  YOUR CODE HERE
@@ -297,7 +297,7 @@ public class PersistentHashedIndex implements Index {
      *
      * @throws     IOException  { exception_description }
      */
-    private void readDocInfo() throws IOException {
+    protected void readDocInfo() throws IOException {
         File file = new File( INDEXDIR + "/docInfo" );
         FileReader freader = new FileReader(file);
         try ( BufferedReader br = new BufferedReader(freader) ) {
@@ -427,7 +427,7 @@ public class PersistentHashedIndex implements Index {
         System.err.println( "done!" );
     }
 
-    private static long getDictPtr(String token) throws NoSuchAlgorithmException{
+    protected static long getDictPtr(String token) throws NoSuchAlgorithmException{
         return Math.abs((getSHA(token) % TABLESIZE) * ENTRYSIZE);
     }
 
@@ -447,7 +447,7 @@ public class PersistentHashedIndex implements Index {
         return hash;
     }
 
-    private static String getChecksum(String token) throws NoSuchAlgorithmException{
+    protected static String getChecksum(String token) throws NoSuchAlgorithmException{
 
         String hash = Long.toString(Math.abs(getSHA(token)));
         
