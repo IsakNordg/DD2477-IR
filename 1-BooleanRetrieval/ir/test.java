@@ -2,17 +2,55 @@ package ir;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Random;
 
 public class test {
 
     public static void main(String[] args) throws IOException {
         
-        RandomAccessFile raf = new RandomAccessFile("test/test1.f", "r");
+        RandomAccessFile term1 = new RandomAccessFile("C:\\GitHub\\DD2477-IR\\1-BooleanRetrieval\\index\\terms00014", "r");
+        RandomAccessFile term2 = new RandomAccessFile("C:\\GitHub\\DD2477-IR\\1-BooleanRetrieval\\index\\terms8", "r");
+        RandomAccessFile term3 = new RandomAccessFile("C:\\GitHub\\DD2477-IR\\1-BooleanRetrieval\\index\\outputTest", "rw");
 
-        String line = raf.readLine();
-        System.out.println(line);
+        String t1 = term1.readLine();
+        String t2 = term2.readLine();
+        String curTerm;
 
-        System.out.println(raf.readLine());
+        while(true){
+            // System.out.println("t1: " + t1 + " t2: " + t2 + " Thread: " + Thread.currentThread().getName());
+            if(t1 == null && t2 == null){
+                break;
+            }
+
+            PostingsList pl1 = null, pl2 = null;
+            if(t1 == null){
+                curTerm = t2;
+                t2 = term2.readLine();
+            }else if(t2 == null){
+                curTerm = t1;
+                t1 = term1.readLine();
+            }else{
+                if(t1.compareTo(t2) < 0){
+                    curTerm = t1;
+                    t1 = term1.readLine();
+                }else if(t1.compareTo(t2) > 0){
+                    curTerm = t2;
+                    t2 = term2.readLine();
+                }else{
+                    curTerm = t1;
+                    t1 = term1.readLine();
+                    t2 = term2.readLine();
+                }
+            }
+            if(curTerm.equals("i")){
+                System.out.println("found the i");
+            }
+            
+            String dataString = curTerm + "\n";
+            byte[] data = dataString.getBytes();
+            term3.write( data );
+
+        }
 
         /* 
         PostingsList pl1 = new PostingsList();

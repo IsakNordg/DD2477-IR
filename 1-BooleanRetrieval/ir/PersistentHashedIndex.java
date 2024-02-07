@@ -44,7 +44,8 @@ public class PersistentHashedIndex implements Index {
     public static final String DOCINFO_FNAME = "docInfo";
 
     /** The dictionary hash table on disk can fit this many entries. */
-    public static final long TABLESIZE = 611953L;
+    // public static final long TABLESIZE = 611953L;
+    public static final long TABLESIZE = 7000029L;
 
     /** The maximum length of the size (number of characters) of a data entry. */
     public static final int MAXLENGTH = 10;  // 6 is an assumption
@@ -53,7 +54,7 @@ public class PersistentHashedIndex implements Index {
     public static final int HASHLENGTH = 19;
 
     /** The length of the data entry */
-    public static final int MAXDATAPTRLENGTH = 10;  // 10 is an assumption
+    public static final int MAXDATAPTRLENGTH = 16;  // 16 is an assumption
 
     /** The size of the dictionary entry */
     public static final int ENTRYSIZE = MAXLENGTH + MAXDATAPTRLENGTH + HASHLENGTH;
@@ -267,7 +268,7 @@ public class PersistentHashedIndex implements Index {
      *
      * @throws IOException  { exception_description }
      */
-    private void writeDocInfo() throws IOException {
+    public void writeDocInfo() throws IOException {
         FileOutputStream fout = new FileOutputStream( INDEXDIR + "/docInfo" );
         for ( Map.Entry<Integer,String> entry : docNames.entrySet() ) {
             Integer key = entry.getKey();
