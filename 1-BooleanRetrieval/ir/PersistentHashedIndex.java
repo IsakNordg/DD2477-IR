@@ -47,10 +47,10 @@ public class PersistentHashedIndex implements Index {
     public static final long TABLESIZE = 611953L;
 
     /** The maximum length of the size (number of characters) of a data entry. */
-    public static final int MAXLENGTH = 6;  // 6 is an assumption
+    public static final int MAXLENGTH = 10;  // 6 is an assumption
 
     /** The length of a hash saved to check for collisions */
-    public static final int HASHLENGTH = 64;
+    public static final int HASHLENGTH = 19;
 
     /** The length of the data entry */
     public static final int MAXDATAPTRLENGTH = 10;  // 10 is an assumption
@@ -166,9 +166,6 @@ public class PersistentHashedIndex implements Index {
      *  @param ptr   The place in the dictionary file to store the entry
      */
     void writeEntry( Entry entry ) throws NoSuchAlgorithmException{
-        //
-        //  YOUR CODE HERE
-        //
         
         // pad data
         String data = Long.toString(entry.ptr);
@@ -218,16 +215,6 @@ public class PersistentHashedIndex implements Index {
             dictionaryFile.write( sizeToWrite );
             byte[] checksumToWrite = checksum.getBytes();
             dictionaryFile.write( checksumToWrite );
-
-            /* 
-            // debug
-            if(ptr == 0){
-                System.out.println("Writing to: " + ptr);
-                System.out.println(data);
-                System.out.println(size);
-                System.out.println(hash);
-            }
-            */
 
         } catch ( IOException e ) {
             e.printStackTrace();
@@ -334,7 +321,7 @@ public class PersistentHashedIndex implements Index {
 
                 free += size;
 
-                writeEntry(entry);  // CHECK
+                writeEntry(entry);  
             }
         } catch ( IOException e ) {
             e.printStackTrace();
@@ -443,7 +430,7 @@ public class PersistentHashedIndex implements Index {
 
         long hash = 0;
         ByteBuffer wrapped = ByteBuffer.wrap(md.digest(input.getBytes(StandardCharsets.UTF_8)));
-        hash = wrapped.getInt();
+        hash = wrapped.getLong();
         return hash;
     }
 

@@ -8,6 +8,7 @@
 package ir;
 
 import java.util.ArrayList;
+import java.util.ArrayList;
 
 public class PostingsList {
     
@@ -49,6 +50,35 @@ public class PostingsList {
             s += list.get(i).toString();
         }
         return s;
+    }
+
+    public void merge(PostingsList pl){
+        int firstOfFirst = list.get(0).docID;
+        int lastOfFirst = list.get(list.size()-1).docID;
+        int firstOfSecond = pl.list.get(0).docID;
+        int lastOfSecond = pl.list.get(pl.list.size()-1).docID;
+
+        if(firstOfFirst < firstOfSecond){
+            if(list.get(list.size()-1) == pl.list.get(0)){
+                PostingsEntry pe = list.get(list.size()-1);
+                pe.merge(pl.list.get(0));
+                list.set(list.size()-1, pe);
+                list.addAll(pl.list.subList(1, pl.list.size()));
+            } else {
+                list.addAll(pl.list);
+            }
+        } else {
+            if(pl.list.get(pl.list.size()-1) == list.get(0)){
+                PostingsEntry pe = pl.list.get(pl.list.size()-1);
+                pe.merge(list.get(0));
+                pl.list.set(pl.list.size()-1, pe);
+                pl.list.addAll(list.subList(1, list.size()));
+                list = pl.list;
+            } else {
+                list.addAll(pl.list);
+            }
+        }
+        
     }
 }
 

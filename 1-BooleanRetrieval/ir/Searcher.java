@@ -53,6 +53,7 @@ public class Searcher {
             else if(queryType == QueryType.PHRASE_QUERY){
                 PostingsList firstList = index.getPostings(query.queryterm.get(0).term);
                 if(query.queryterm.size() == 1){
+                    System.out.println(firstList.toString());
                     return firstList;
                 }else{
                     boolean match = false;

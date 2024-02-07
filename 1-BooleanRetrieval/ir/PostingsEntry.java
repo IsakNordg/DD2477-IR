@@ -49,5 +49,11 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         s += ";";
         return s;
     }
+
+    public void merge(PostingsEntry pe){
+        for(int i = 0; i < pe.offset.size(); i++){
+            offset.add(pe.offset.get(i));
+        }
+    }
 }
 
