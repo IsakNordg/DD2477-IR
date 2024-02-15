@@ -45,7 +45,7 @@ public class test {
             if(curTerm.equals("i")){
                 System.out.println("found the i");
             }
-            
+
             String dataString = curTerm + "\n";
             byte[] data = dataString.getBytes();
             term3.write( data );

@@ -437,7 +437,10 @@ public class PersistentHashedIndex implements Index {
 
     protected static String getChecksum(String token) throws NoSuchAlgorithmException{
 
-        String hash = Long.toString(Math.abs(getSHA(token)));
+        // reverse token
+        String reversed = new StringBuilder(token).reverse().toString();
+
+        String hash = Long.toString(Math.abs(getSHA(reversed)));
         
         // pad hash
         while(hash.length() < HASHLENGTH){

@@ -8,6 +8,7 @@
 package ir;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *  Searches an index for results of a query.
@@ -45,15 +46,15 @@ public class Searcher {
             for(int i = 1; i < query.size(); i++){
                 pl = intersect(pl, index.getPostings(query.queryterm.get(i).term));
             }
-        
 
-            if(queryType == QueryType.INTERSECTION_QUERY){
+            if(queryType == QueryType.RANKED_QUERY){
+                return RankedSearch(query, queryType, rankingType, normType, pl);
+            } else if(queryType == QueryType.INTERSECTION_QUERY){
                 return pl;
-            }
-            else if(queryType == QueryType.PHRASE_QUERY){
+            } else if(queryType == QueryType.PHRASE_QUERY){
                 PostingsList firstList = index.getPostings(query.queryterm.get(0).term);
                 if(query.queryterm.size() == 1){
-                    System.out.println(firstList.toString());
+                    // System.out.println(firstList.toString());
                     return firstList;
                 }else{
                     boolean match = false;
@@ -63,7 +64,7 @@ public class Searcher {
                         plList.add(index.getPostings(query.queryterm.get(k).term));
                     }
 
-                    // Each interesting PostingsEntry
+                    // Each interesting PostingsEntry (meaning each document)
                     for(int i = 0; i < pl.size(); i++){
                         int curDoc = pl.get(i).docID;
                         // each offset in the current PostingEntry
@@ -93,6 +94,18 @@ public class Searcher {
         return null;
     }
 
+
+    private PostingsList RankedSearch( Query query, QueryType queryType, RankingType rankingType, NormalizationType normType, PostingsList pl ) {
+        System.out.println("RankedSearch");
+        for(int i = 0; i < pl.size(); i++){
+            PostingsEntry pe = pl.get(i);
+            pe.computeScore(query, rankingType, normType, index);
+        }
+        
+        System.out.println("RankedSearch: Sorting");
+        Collections.sort(pl.list);
+        return pl;
+    }
 
     private PostingsList intersect(PostingsList pl1, PostingsList pl2){
         PostingsList pl = new PostingsList();

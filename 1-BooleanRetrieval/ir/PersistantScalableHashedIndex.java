@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -22,9 +23,10 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
     private int dc = 0; // total count of documents, used for naming new index files
 
     /** The max amout of tokens that are indexed in one file */
-    public static final long MAXTOKENS = 100000L;
+    public static final long MAXTOKENS = 600000L;
 
-    private RandomAccessFile termFile;   
+    private File termFile; 
+    BufferedWriter termFileWriter;
 
     ArrayList<String> mergeQueue = new ArrayList<String>();
 
@@ -36,7 +38,9 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
         try {
             dictionaryFile = new RandomAccessFile( INDEXDIR + "/" + DICTIONARY_FNAME + "0", "rw" );
             dataFile = new RandomAccessFile( INDEXDIR + "/" + DATA_FNAME + "0", "rw" );
-            termFile = new RandomAccessFile( INDEXDIR + "/" + TERMS_FNAME + "0", "rw" );
+            termFile = new File( INDEXDIR + "/" + TERMS_FNAME + "0");
+            termFile.createNewFile();
+            termFileWriter = new BufferedWriter(new FileWriter(termFile));
         } catch ( IOException e ) {
             e.printStackTrace();
         }
@@ -63,7 +67,7 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
             try {
                 dictionaryFile.close();
                 dataFile.close();
-                termFile.close();
+                termFileWriter.close();
                 free = 0;
 
                 mergeQueue.add(Integer.toString(dc));
@@ -72,7 +76,10 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
 
                 dictionaryFile = new RandomAccessFile( INDEXDIR + "/" + DICTIONARY_FNAME + dc, "rw" );
                 dataFile = new RandomAccessFile( INDEXDIR + "/" + DATA_FNAME + dc, "rw" );
-                termFile = new RandomAccessFile( INDEXDIR + "/" + TERMS_FNAME + dc, "rw" );
+                termFile = new File( INDEXDIR + "/" + TERMS_FNAME + dc);
+                termFile.createNewFile();
+                termFileWriter = new BufferedWriter(new FileWriter(termFile));
+                
             } catch ( IOException e ) {
                 e.printStackTrace();
             }
@@ -114,7 +121,7 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
         Collections.sort(terms);
         for(String term : terms){
             try {
-                termFile.writeBytes(term + "\n");
+                termFileWriter.write(term + "\n");
             } catch ( IOException e ) {
                 e.printStackTrace();
             }
@@ -132,7 +139,7 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
         try {
             dictionaryFile.close();
             dataFile.close();
-            termFile.close();
+            termFileWriter.close();
             free = 0;
 
             mergeQueue.add(Integer.toString(dc));
@@ -141,7 +148,9 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
 
             dictionaryFile = new RandomAccessFile( INDEXDIR + "/" + DICTIONARY_FNAME + dc, "rw" );
             dataFile = new RandomAccessFile( INDEXDIR + "/" + DATA_FNAME + dc, "rw" );
-            termFile = new RandomAccessFile( INDEXDIR + "/" + TERMS_FNAME + dc, "rw" );
+            termFile = new File( INDEXDIR + "/" + TERMS_FNAME + dc);
+            termFile.createNewFile();
+            termFileWriter = new BufferedWriter(new FileWriter(termFile));
         } catch ( IOException e ) {
             e.printStackTrace();
         }
@@ -177,17 +186,16 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
             }
         }
 
-        // rename final file
+        // point to final file
         try{
             dictionaryFile.close();
             dataFile.close();
-            termFile.close();
+            termFileWriter.close();
 
             String finalIndex = mergeQueue.get(0);
 
             dictionaryFile = new RandomAccessFile( INDEXDIR + "/" + DICTIONARY_FNAME + finalIndex, "rw" );
             dataFile = new RandomAccessFile( INDEXDIR + "/" + DATA_FNAME + finalIndex, "rw" );
-            termFile = new RandomAccessFile( INDEXDIR + "/" + TERMS_FNAME + finalIndex, "rw" );
 
             mergeQueue.remove(0);
         }catch(IOException e){
@@ -197,7 +205,6 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
         try {
             writeDocInfo();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -245,13 +252,16 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
                 RandomAccessFile data3 = new RandomAccessFile( INDEXDIR + "/" + DATA_FNAME + "0" + (i1 + i2), "rw" );
                 File term3 = new File( INDEXDIR + "/" + TERMS_FNAME + "0" + (i1 + i2));
                 term3.createNewFile();
-                BufferedWriter term3Writer = new BufferedWriter(new FileWriter(term3));
+                PrintStream term3Writer = new PrintStream(term3, "UTF-8");
 
                 String t1 = term1.readLine();
                 String t2 = term2.readLine();
                 String curTerm;
                 int sizeMerger;
                 long freeMerger = 0;
+
+                // Problem with i in the terms file
+
                 while(true){
                     // System.out.println("t1: " + t1 + " t2: " + t2 + " Thread: " + Thread.currentThread().getName());
                     if(t1 == null && t2 == null){
@@ -287,9 +297,7 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
                         }
                     }
 
-                    String dataString = curTerm + "\n";
-                    byte[] data = dataString.getBytes();
-                    term3Writer.write(curTerm + "\n");
+                    term3Writer.println(curTerm);
                     
                     if(pl1 == null && pl2 == null){
                         continue;
@@ -472,6 +480,10 @@ public class PersistantScalableHashedIndex extends PersistentHashedIndex{
         while(true){
             // System.out.println("Reading entry for " + token + " at " + ptr + " (Thread " + Thread.currentThread().getName() + ")");
             // System.out.println(dc);
+            if(dictionaryFile.length() <= ptr + ENTRYSIZE){
+                // System.out.println("Entry " + token + " not found");
+                return null;
+            }
             dictionaryFile.seek( ptr );
             byte[] read = new byte[ENTRYSIZE];
             dictionaryFile.readFully( read );

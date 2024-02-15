@@ -35,6 +35,27 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     //
     // YOUR CODE HERE
     //
+
+    public void computeScore(Query query, RankingType rankingType, NormalizationType normType, Index index){
+        if(query.queryterm.size() == 1){
+            // # occurences of term in document
+            int tf_dt = this.offset.size();
+            
+            // # documents in the corpus
+            int N = index.docNames.size();
+
+            // # documents in the corpus which contain the term
+            int df_t = index.getPostings(query.queryterm.get(0).term).size();
+
+            // # of words in d
+            int len_d = index.docLengths.get(docID);
+
+            this.score = tf_dt*(Math.log(N/df_t)/len_d);
+            System.out.println("Score: " + this.score);
+        }else{
+            System.out.println("Not implemented");
+        }
+    }
     
     public PostingsEntry(int docID){
         this.docID = docID;

@@ -77,8 +77,7 @@ public class PostingsList {
             } else {
                 list.addAll(pl.list);
             }
-        }
-        
+        }   
     }
 }
 
