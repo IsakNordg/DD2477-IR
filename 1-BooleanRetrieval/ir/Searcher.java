@@ -48,7 +48,12 @@ public class Searcher {
             }
 
             if(queryType == QueryType.RANKED_QUERY){
-                return RankedSearch(query, queryType, rankingType, normType, pl);
+                if(query.queryterm.size() == 1){
+                    return RankedSearch(query, queryType, rankingType, normType);
+                }else{
+
+                    return RankedSearch(query, queryType, rankingType, normType);
+                }
             } else if(queryType == QueryType.INTERSECTION_QUERY){
                 return pl;
             } else if(queryType == QueryType.PHRASE_QUERY){
@@ -95,16 +100,27 @@ public class Searcher {
     }
 
 
-    private PostingsList RankedSearch( Query query, QueryType queryType, RankingType rankingType, NormalizationType normType, PostingsList pl ) {
-        System.out.println("RankedSearch");
-        for(int i = 0; i < pl.size(); i++){
-            PostingsEntry pe = pl.get(i);
-            pe.computeScore(query, rankingType, normType, index);
-        }
+    private PostingsList RankedSearch( Query query, QueryType queryType, RankingType rankingType, NormalizationType normType) {
+        PostingsList result = new PostingsList();
         
-        System.out.println("RankedSearch: Sorting");
-        Collections.sort(pl.list);
-        return pl;
+        for(int i = 0; i < query.queryterm.size(); i++){
+
+            PostingsList pl = index.getPostings(query.queryterm.get(i).term);
+
+            for(int j = 0; j < pl.size(); j++){
+                PostingsEntry pe = pl.get(j);
+                pe.computeScore(query, rankingType, normType, index);
+            }
+
+            if(i == 0){
+                result = pl;
+            }else{
+                result = union(result, pl);
+            }
+        }
+
+        Collections.sort(result.list);
+        return result;
     }
 
     private PostingsList intersect(PostingsList pl1, PostingsList pl2){
@@ -122,6 +138,39 @@ public class Searcher {
             }
         }
         return pl;
+    }
+
+    private PostingsList union(PostingsList pl1, PostingsList pl2){
+        PostingsList pl = new PostingsList();
+        int i = 0, j = 0;
+        
+        while(i < pl1.size() && j < pl2.size()){
+            if(pl1.get(i).docID == pl2.get(j).docID){
+                PostingsEntry pe = pl1.get(i);
+                // pe.merge(pl2.get(j)); // This is not needed
+
+                pe.score = pl1.get(i).score + pl2.get(j).score;
+                pl.add(pe);
+
+                i++; j++;
+            }else if(pl1.get(i).docID < pl2.get(j).docID){
+                pl.add(pl1.get(i));
+                i++;
+            }else{
+                pl.add(pl2.get(j));
+                j++;
+            }
+        }
+        while(i < pl1.size()){
+            pl.add(pl1.get(i));
+            i++;
+        }
+        while(j < pl2.size()){
+            pl.add(pl2.get(j));
+            j++;
+        }
+        return pl;
+        
     }
 
 }
