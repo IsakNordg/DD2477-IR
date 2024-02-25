@@ -360,6 +360,7 @@ public class PersistentHashedIndex implements Index {
                     while(st2.hasMoreTokens()){
                         pe.offset.add(Integer.parseInt(st2.nextToken()));
                     }
+                    pe.pagerank = pagerank.get(docID);
                     pl.add(pe);
                 }
                 return pl;
@@ -388,6 +389,7 @@ public class PersistentHashedIndex implements Index {
             PostingsList pl = new PostingsList();
             PostingsEntry pe = new PostingsEntry(docID);
             pe.offset.add(offset);
+            pe.pagerank = pagerank.get(docID);
             pl.add(pe);
             index.put(token, pl);
         }
@@ -397,10 +399,12 @@ public class PersistentHashedIndex implements Index {
             PostingsEntry pe = new PostingsEntry(docID);
             if(pl.get(pl.size()-1).docID != docID){
                 pe.offset.add(offset);
+                pe.pagerank = pagerank.get(docID);
                 pl.add(pe);
                 index.put(token, pl);
             }else{
                 pl.get(pl.size()-1).offset.add(offset);
+                pe.pagerank = pagerank.get(docID);
             }
         }
     }
@@ -456,12 +460,10 @@ public class PersistentHashedIndex implements Index {
         Scanner in;
         try {
             in = new Scanner(pr);
-        
-        
+
             int i = 0;
             while(in.hasNextLine()){
                 String[] line = in.nextLine().split(" ");
-                System.out.println("docID: " + i + " pagerank: " + line[1]);
                 pagerank.put(i, Double.parseDouble(line[1]));
                 i++;
             }

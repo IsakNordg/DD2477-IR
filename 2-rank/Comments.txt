@@ -4,3 +4,7 @@ The documents which have the highest rank seem to be ones of high general releva
 The documents with the lowest rank seem to be ones which are just random obscure pages, or ones which are not relevant to Davis at all.
 
     ### 2.5.2: What is the effect of letting the tf_idf score dominate this ranking? What is the effect of letting the pagerank dominate? What would be a good strategy for selecting an ”optimal” combination? (Remember the quality measures you studied in Task 2.3.)
+
+If we let tf_idf rating dominate this score, we will get documents that match the query well but that may not be relevant in a pagerank meaning. Letting the pagerank scores dominate makes for documents that are generally relevant showing up more, but they may not match the query so well.
+
+A good strategy for selecting an optimal combination of the two is to test a few cases and queries using different combinations and compute their precision and recall, maybe computing the mean to get a single "goodness"-score. 

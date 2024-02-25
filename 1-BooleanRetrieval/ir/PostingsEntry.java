@@ -50,7 +50,6 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         if(rankingType == RankingType.TF_IDF){
             this.score = tf_dt*(Math.log(N/df_t)/len_d);
         }else if(rankingType == RankingType.PAGERANK){
-            System.out.println("pagerank: " + pagerank);
             this.score = pagerank;
         }else if(rankingType == RankingType.COMBINATION){
             this.score = tf_dt*(Math.log(N/df_t)/len_d)*prWeight + pagerank * (1-prWeight);
