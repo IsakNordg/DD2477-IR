@@ -48,12 +48,7 @@ public class Searcher {
             }
 
             if(queryType == QueryType.RANKED_QUERY){
-                if(query.queryterm.size() == 1){
-                    return RankedSearch(query, queryType, rankingType, normType);
-                }else{
-
-                    return RankedSearch(query, queryType, rankingType, normType);
-                }
+                return RankedSearch(query, queryType, rankingType, normType);
             } else if(queryType == QueryType.INTERSECTION_QUERY){
                 return pl;
             } else if(queryType == QueryType.PHRASE_QUERY){
@@ -91,7 +86,6 @@ public class Searcher {
                             }
                         }
                     }
-
                     return result;
                 }
             }

@@ -17,6 +17,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
 
     public int docID;
     public double score = 0;
+    public double pagerank = 0;
     
     public ArrayList offset = new ArrayList<>();
 
@@ -45,7 +46,15 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         int df_t = index.getPostings(query.queryterm.get(0).term).size();
         // # of words in d
         int len_d = index.docLengths.get(docID);
-        this.score = tf_dt*(Math.log(N/df_t)/len_d);
+
+        if(rankingType == RankingType.TF_IDF){
+            this.score = tf_dt*(Math.log(N/df_t)/len_d);
+        }else if(rankingType == RankingType.PAGERANK){
+            this.score = 0;
+        }else if(rankingType == RankingType.COMBINATION){
+            this.score = 0.5*tf_dt*(Math.log(N/df_t)/len_d) + 0.5*0;
+        }
+
     }
     
     public PostingsEntry(int docID){
