@@ -31,5 +31,6 @@ public interface Index {
     /** This method is called on exit. */
     public void cleanup();
 
+    public void readPageRank(String filename);
 }
 

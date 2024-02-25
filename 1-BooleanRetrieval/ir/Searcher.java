@@ -15,6 +15,8 @@ import java.util.Collections;
  */
 public class Searcher {
 
+    Double prWeight = 0.5;
+
     /** The index to be searched by this Searcher. */
     Index index;
 
@@ -103,7 +105,7 @@ public class Searcher {
 
             for(int j = 0; j < pl.size(); j++){
                 PostingsEntry pe = pl.get(j);
-                pe.computeScore(query, rankingType, normType, index);
+                pe.computeScore(query, rankingType, normType, index, prWeight);
             }
 
             if(i == 0){

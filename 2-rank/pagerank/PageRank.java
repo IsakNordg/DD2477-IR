@@ -205,8 +205,9 @@ public class PageRank {
 		try {
 			PrintWriter writer = new PrintWriter("../../1-BooleanRetrieval/pagerank.txt", "UTF-8");
 			for ( int i=0; i<a.length; i++ ) {
-				writer.print( docName[i] + " ");
-				writer.printf(" %.8f\n", a[i]);
+				writer.print( docName[i]);
+				writer.print(" ");
+				writer.println(a[i]);
 			}
 			writer.close();
 		} catch (IOException e) {

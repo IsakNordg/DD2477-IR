@@ -24,16 +24,25 @@ public class HashedIndex implements Index {
     private HashMap<String,PostingsList> index = new HashMap<String,PostingsList>();
 
     /** The pagerank score saved as a hashtable. */
-    private HashMap<String,Double> pagerank = new HashMap<String,Double>();
+    private HashMap<Integer,Double> pagerank = new HashMap<Integer,Double>();
 
-
-    public void readPageRank(String filename) throws FileNotFoundException{
+    /**
+     *  Inserts this token in the hashtable.
+     */
+    public void readPageRank(String filename){
         File pr = new File(filename);
-        Scanner in = new Scanner(pr);
+        Scanner in;
+        try {
+            in = new Scanner(pr);
         
-        while(in.hasNextLine()){
-            String[] line = in.nextLine().split(" ");
-            pagerank.put(line[0], Double.parseDouble(line[1]));
+            int i = 0;
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().split(" ");
+                pagerank.put(i, Double.parseDouble(line[1]));
+                i++;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -45,14 +54,12 @@ public class HashedIndex implements Index {
         // YOUR CODE HERE
         //
         
-        System.out.println("Inserting token: " + token + " with docID: " + docID + " and offset: " + offset);
-
         // new token
         if(index.get(token) == null){
             PostingsList pl = new PostingsList();
             PostingsEntry pe = new PostingsEntry(docID);
             pe.offset.add(offset);
-            pe.pagerank = pagerank.get(...);
+            pe.pagerank = pagerank.get(docID);
             pl.add(pe);
             index.put(token, pl);
         }
@@ -62,11 +69,12 @@ public class HashedIndex implements Index {
             PostingsEntry pe = new PostingsEntry(docID);
             if(pl.get(pl.size()-1).docID != docID){
                 pe.offset.add(offset);
-                pe.pagerank = pagerank.get(...);
+                pe.pagerank = pagerank.get(docID);
                 pl.add(pe);
                 index.put(token, pl);
             }else{
                 pl.get(pl.size()-1).offset.add(offset);
+                pe.pagerank = pagerank.get(docID);
             }
         }
     }

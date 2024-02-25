@@ -73,6 +73,7 @@ public class PersistentHashedIndex implements Index {
     /** The cache as a main-memory hash map. */
     HashMap<String,PostingsList> index = new HashMap<String,PostingsList>();
 
+    private HashMap<Integer,Double> pagerank = new HashMap<Integer,Double>();
 
     // ===================================================================
 
@@ -449,4 +450,23 @@ public class PersistentHashedIndex implements Index {
 
         return hash;
     }
+
+    public void readPageRank(String filename){
+        File pr = new File(filename);
+        Scanner in;
+        try {
+            in = new Scanner(pr);
+        
+        
+            int i = 0;
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().split(" ");
+                System.out.println("docID: " + i + " pagerank: " + line[1]);
+                pagerank.put(i, Double.parseDouble(line[1]));
+                i++;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    } 
 }

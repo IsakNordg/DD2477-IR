@@ -9,6 +9,7 @@ package ir;
 
 import java.util.ArrayList;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  *  This is the main class for the search engine.
@@ -67,6 +68,7 @@ public class Engine {
      */
     public Engine( String[] args ) {
         decodeArgs( args );
+        index.readPageRank(rank_file);
         indexer = new Indexer( index, kgIndex, patterns_file );
         searcher = new Searcher( index, kgIndex );
         gui = new SearchGUI( this );
@@ -85,6 +87,7 @@ public class Engine {
                     File dokDir = new File( dirNames.get( i ));
                     indexer.processFiles( dokDir, is_indexing );
                 }
+
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 gui.displayInfoText( String.format( "Indexing done in %.1f seconds.", elapsedTime/1000.0 ));
                 index.cleanup();

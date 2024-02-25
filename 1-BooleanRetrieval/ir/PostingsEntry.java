@@ -37,7 +37,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     // YOUR CODE HERE
     //
 
-    public void computeScore(Query query, RankingType rankingType, NormalizationType normType, Index index){
+    public void computeScore(Query query, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
         // # occurences of term in document
         int tf_dt = this.offset.size();
         // # documents in the corpus
@@ -50,9 +50,10 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         if(rankingType == RankingType.TF_IDF){
             this.score = tf_dt*(Math.log(N/df_t)/len_d);
         }else if(rankingType == RankingType.PAGERANK){
-            this.score = 0;
+            System.out.println("pagerank: " + pagerank);
+            this.score = pagerank;
         }else if(rankingType == RankingType.COMBINATION){
-            this.score = 0.5*tf_dt*(Math.log(N/df_t)/len_d) + 0.5*0;
+            this.score = tf_dt*(Math.log(N/df_t)/len_d)*prWeight + pagerank * (1-prWeight);
         }
 
     }
