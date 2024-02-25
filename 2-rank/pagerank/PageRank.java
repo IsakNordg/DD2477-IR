@@ -232,7 +232,7 @@ public class PageRank {
 
 		// Print the 30 highest ranked documents
 		for ( int i=0; i<30; i++ ) {
-			System.out.print( docName[list.get(i)] + ":\t");
+			System.out.print( list.get(i) + ":\t");
 			System.out.printf(" %.5f\n", a[list.get(i)]);
 		}
 	}

@@ -1,0 +1,6 @@
+    ### 2.5.1: Look up the titles of some documents with high rank, and some documents with low rank. Does the ranking make sense?
+The documents which have the highest rank seem to be ones of high general relevance to the wiki, since they are about Davis in some way.
+
+The documents with the lowest rank seem to be ones which are just random obscure pages, or ones which are not relevant to Davis at all.
+
+    ### 2.5.2: What is the effect of letting the tf_idf score dominate this ranking? What is the effect of letting the pagerank dominate? What would be a good strategy for selecting an ”optimal” combination? (Remember the quality measures you studied in Task 2.3.)
