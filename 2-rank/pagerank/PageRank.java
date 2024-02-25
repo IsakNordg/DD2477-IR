@@ -47,15 +47,15 @@ public class PageRank {
      *   Convergence criterion: Transition probabilities do not 
      *   change more that EPSILON from one iteration to another.
      */
-    final static double EPSILON = 0.0001;
+    final static double EPSILON = 0.000000001;
 
        
     /* --------------------------------------------- */
 
 
     public PageRank( String filename ) {
-	int noOfDocs = readDocs( filename );
-	iterate( noOfDocs, 1000 );
+		int noOfDocs = readDocs( filename );
+		iterate( noOfDocs, 1000 );
     }
 
 
@@ -90,19 +90,19 @@ public class PageRank {
 		    String otherTitle = tok.nextToken();
 		    Integer otherDoc = docNumber.get( otherTitle );
 		    if ( otherDoc == null ) {
-			// This is a previousy unseen doc, so add it to the table.
-			otherDoc = fileIndex++;
-			docNumber.put( otherTitle, otherDoc );
-			docName[otherDoc] = otherTitle;
+				// This is a previousy unseen doc, so add it to the table.
+				otherDoc = fileIndex++;
+				docNumber.put( otherTitle, otherDoc );
+				docName[otherDoc] = otherTitle;
 		    }
 		    // Set the probability to 0 for now, to indicate that there is
 		    // a link from fromdoc to otherDoc.
 		    if ( link.get(fromdoc) == null ) {
-			link.put(fromdoc, new HashMap<Integer,Boolean>());
+				link.put(fromdoc, new HashMap<Integer,Boolean>());
 		    }
 		    if ( link.get(fromdoc).get(otherDoc) == null ) {
-			link.get(fromdoc).put( otherDoc, true );
-			out[fromdoc]++;
+				link.get(fromdoc).put( otherDoc, true );
+				out[fromdoc]++;
 		    }
 		}
 	    }
@@ -133,9 +133,109 @@ public class PageRank {
      */
     void iterate( int numberOfDocs, int maxIterations ) {
 
-	// YOUR CODE HERE
+		double[] a = new double[numberOfDocs];
+		a[0] = 1;
+
+		while( maxIterations-- > 0 ) {
+
+			double[] aNext = new double[numberOfDocs];
+			for ( int i=0; i<numberOfDocs; i++ ) {
+				aNext[i] = BORED / numberOfDocs;
+			}
+
+			// Compute aP
+			for ( int i = 0; i < numberOfDocs; i++) {
+				HashMap<Integer,Boolean> outlinks = link.get(i);
+				int noOfOutlinks = out[i];
+				
+				// if no outlinks, distribute the rank evenly
+				if(outlinks == null) {
+					for ( int j=0; j<numberOfDocs; j++ ) {
+						aNext[j] += a[i] / numberOfDocs;
+					}
+					continue;
+				}
+				
+
+				if ( noOfOutlinks == 0 ) {
+					for ( int j=0; j<numberOfDocs; j++ ) {
+						aNext[j] += a[i] / numberOfDocs;
+					}
+				} else {
+					for ( int j : link.get(i).keySet() ) {
+						aNext[j] += a[i] / noOfOutlinks * (1 - BORED);
+					}
+				}
+			}
+
+			// Regularize
+			double sum = 0;
+			for ( int i=0; i<numberOfDocs; i++ ) {
+				sum += aNext[i];
+			}
+			for ( int i=0; i<numberOfDocs; i++ ) {
+				aNext[i] = aNext[i]/sum;
+			}
+
+			// Check for convergence
+			boolean done = true;
+			for ( int i=0; i<numberOfDocs; i++ ) {
+				// If any of the values differ more than EPSILON, we're not done
+				if ( Math.abs(a[i]-aNext[i]) > EPSILON ) {
+					done = false;
+					break;
+				}
+			}
+
+			if ( done ) {
+				break;
+			}
+
+			a = aNext;
+
+		}
+
+		//print( a );
+		printToFile( a );
 
     }
+
+	// Prints all documents and their corresponding rank to a file
+	void printToFile( double[] a ) {
+		try {
+			PrintWriter writer = new PrintWriter("../../1-BooleanRetrieval/pagerank.txt", "UTF-8");
+			for ( int i=0; i<a.length; i++ ) {
+				writer.print( docName[i] + " ");
+				writer.printf(" %.8f\n", a[i]);
+			}
+			writer.close();
+		} catch (IOException e) {
+			System.err.println("Error writing to file");
+		}
+	}
+
+	// Prints the 30 highest ranked documents
+	void print( double[] a ) {
+		
+		// Create a list of all documents
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for ( int i=0; i<a.length; i++ ) {
+			list.add(i);
+		}
+
+		// Sort the list based on the values in a
+		Collections.sort(list, new Comparator<Integer>() {
+			public int compare( Integer i, Integer j ) {
+				return Double.compare(a[j], a[i]);
+			}
+		});
+
+		// Print the 30 highest ranked documents
+		for ( int i=0; i<30; i++ ) {
+			System.out.print( docName[list.get(i)] + ":\t");
+			System.out.printf(" %.5f\n", a[list.get(i)]);
+		}
+	}
 
 
     /* --------------------------------------------- */
