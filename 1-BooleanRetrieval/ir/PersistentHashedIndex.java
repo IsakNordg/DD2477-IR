@@ -470,5 +470,34 @@ public class PersistentHashedIndex implements Index {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-    } 
+    }
+
+    public void readEuclideanIndex(String filename){
+        File el = new File(filename);
+        Scanner in;
+        try {
+            in = new Scanner(el);
+
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().split(" ");
+                euclidianLengths.put(Integer.parseInt(line[0]), Double.parseDouble(line[1]));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeEuclideanIndex(String filename){
+        try {
+            FileOutputStream fout = new FileOutputStream( filename );
+            for ( Map.Entry<Integer,Double> entry : euclidianLengths.entrySet() ) {
+                Integer key = entry.getKey();
+                String euclidianIndexEntry = key + " " + entry.getValue() + "\n";
+                fout.write( euclidianIndexEntry.getBytes() );
+            }
+            fout.close();
+        } catch ( IOException e ) {
+            e.printStackTrace();
+        }
+    }
 }

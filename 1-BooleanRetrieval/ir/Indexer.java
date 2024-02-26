@@ -52,7 +52,7 @@ public class Indexer {
      *  Tokenizes and indexes the file @code{f}. If <code>f</code> is a directory,
      *  all its files and subdirectories are recursively processed.
      */
-    public void processFiles( File f, boolean is_indexing ) {
+    public void processFiles( File f, boolean is_indexing , boolean euclidianExists) {
         // do not try to index fs that cannot be read
         if (is_indexing) {
             if ( f.canRead() ) {
@@ -61,7 +61,7 @@ public class Indexer {
                     // an IO error could occur
                     if ( fs != null ) {
                         for ( int i=0; i<fs.length; i++ ) {
-                            processFiles( new File( f, fs[i] ), is_indexing );
+                            processFiles( new File( f, fs[i] ), is_indexing, euclidianExists);
                         }
                     }
                 } else {
@@ -72,12 +72,29 @@ public class Indexer {
                         Reader reader = new InputStreamReader( new FileInputStream(f), StandardCharsets.UTF_8 );
                         Tokenizer tok = new Tokenizer( reader, true, false, true, patterns_file );
                         int offset = 0;
+                        HashMap<String,Integer> wordCount = new HashMap<String,Integer>();
+                        
                         while ( tok.hasMoreTokens() ) {
                             String token = tok.nextToken();
                             insertIntoIndex( docID, token, offset++ );
+                            if(wordCount.containsKey(docID)){
+                                wordCount.put(token, wordCount.get(docID) + 1);
+                            }else{
+                                wordCount.put(token, 1);
+                            }
                         }
+
                         index.docNames.put( docID, f.getPath() );
                         index.docLengths.put( docID, offset );
+
+                        if(!euclidianExists){
+                            Double sum = 0.0;
+                            for(String token : wordCount.keySet()){
+                                sum += Math.pow(wordCount.get(token), 2);
+                            }
+                            Double euclidianLength = Math.sqrt(sum);
+                            index.euclidianLengths.put(docID, euclidianLength);
+                        }
                         reader.close();
                     } catch ( IOException e ) {
                         System.err.println( "Warning: IOException during indexing." );
@@ -100,4 +117,3 @@ public class Indexer {
             kgIndex.insert(token);
     }
 }
-

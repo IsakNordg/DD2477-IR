@@ -10,8 +10,11 @@ package ir;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Scanner;
 
 
@@ -96,5 +99,34 @@ public class HashedIndex implements Index {
      *  No need for cleanup in a HashedIndex.
      */
     public void cleanup() {
+    }
+
+    public void readEuclideanIndex(String filename){
+        File el = new File(filename);
+        Scanner in;
+        try {
+            in = new Scanner(el);
+
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().split(" ");
+                euclidianLengths.put(Integer.parseInt(line[0]), Double.parseDouble(line[1]));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeEuclideanIndex(String filename){
+        try {
+            FileOutputStream fout = new FileOutputStream( filename );
+            for ( Map.Entry<Integer,Double> entry : euclidianLengths.entrySet() ) {
+                Integer key = entry.getKey();
+                String euclidianIndexEntry = key + " " + entry.getValue() + "\n";
+                fout.write( euclidianIndexEntry.getBytes() );
+            }
+            fout.close();
+        } catch ( IOException e ) {
+            e.printStackTrace();
+        }
     }
 }

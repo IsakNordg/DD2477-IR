@@ -55,8 +55,14 @@ public class Engine {
     /** The file containing the pageranks. */
     String rank_file = "";
 
+    //public static String euclidean_File = "euclideanIndex.txt";
+    String euclidean_File = "";
+
     /** For persistent indexes, we might not need to do any indexing. */
     boolean is_indexing = true;
+
+
+    boolean euclidianExists;
 
 
     /* ----------------------------------------------- */
@@ -83,9 +89,24 @@ public class Engine {
             synchronized ( indexLock ) {
                 gui.displayInfoText( "Indexing, please wait..." );
                 long startTime = System.currentTimeMillis();
+
+                // check if euclidean index exists
+                File euclideanIndex = new File(euclidean_File);
+                if (euclideanIndex.exists()) {
+                    euclidianExists = true;
+                } else {
+                    euclidianExists = false;
+                }
+
                 for ( int i=0; i<dirNames.size(); i++ ) {
                     File dokDir = new File( dirNames.get( i ));
-                    indexer.processFiles( dokDir, is_indexing );
+                    indexer.processFiles( dokDir, is_indexing, euclidianExists );
+                }
+
+                if(euclidianExists){
+                    index.readEuclideanIndex(euclidean_File);
+                }else{
+                    index.writeEuclideanIndex(euclidean_File);
                 }
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
@@ -129,7 +150,12 @@ public class Engine {
             } else if ( "-ni".equals( args[i] )) {
                 i++;
                 is_indexing = false;
-            } else {
+            } else if ( "-e".equals( args[i] )) {
+                i++;
+                if(i < args.length){
+                    euclidean_File = args[i++];
+                }
+            }else {
                 System.err.println( "Unknown option: " + args[i] );
                 break;
             }

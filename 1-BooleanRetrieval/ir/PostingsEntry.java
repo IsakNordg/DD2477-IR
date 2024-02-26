@@ -45,7 +45,15 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         // # documents in the corpus which contain the term
         int df_t = index.getPostings(query.queryterm.get(0).term).size();
         // # of words in d
-        int len_d = index.docLengths.get(docID);
+        Double len_d;
+        if(normType == NormalizationType.NUMBER_OF_WORDS){
+            len_d = Double.valueOf( index.docLengths.get(docID) );
+        }else if(normType == NormalizationType.EUCLIDEAN){
+            len_d = index.euclidianLengths.get(docID);
+        }else{
+            System.out.println("Normalization type not recognized. Using default (NUMBER_OF_WORDS)");
+            len_d = Double.valueOf( index.docLengths.get(docID) );
+        }
 
         if(rankingType == RankingType.TF_IDF){
             this.score = tf_dt*(Math.log(N/df_t)/len_d);
@@ -54,7 +62,6 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         }else if(rankingType == RankingType.COMBINATION){
             this.score = tf_dt*(Math.log(N/df_t)/len_d)*prWeight + pagerank * (1-prWeight);
         }
-
     }
     
     public PostingsEntry(int docID){
