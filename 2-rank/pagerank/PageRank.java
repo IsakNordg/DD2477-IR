@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+import java.sql.Time;
 
 public class PageRank {
 
@@ -8,6 +9,31 @@ public class PageRank {
      *   don't have more docs than we can keep in main memory.
      */
     final static int MAX_NUMBER_OF_DOCS = 2000000;
+
+	final static Double c = 0.85;
+
+	final static boolean monteCarlo = true;
+
+	final static int monteCarloType = 4;
+
+	static int N = 100000;
+
+	static int t = 1000;
+
+	static int m = 1;
+
+
+	    /**
+     *   The probability that the surfer will be bored, stop
+     *   following links, and take a random jump somewhere.
+     */
+    final static double BORED = 0.15;
+
+    /**
+     *   Convergence criterion: Transition probabilities do not 
+     *   change more that EPSILON from one iteration to another.
+     */
+    final static double EPSILON = 0.01;
 
     /**
      *   Mapping from document names to document numbers.
@@ -36,18 +62,6 @@ public class PageRank {
      *   The number of outlinks from each node.
      */
     int[] out = new int[MAX_NUMBER_OF_DOCS];
-
-    /**
-     *   The probability that the surfer will be bored, stop
-     *   following links, and take a random jump somewhere.
-     */
-    final static double BORED = 0.15;
-
-    /**
-     *   Convergence criterion: Transition probabilities do not 
-     *   change more that EPSILON from one iteration to another.
-     */
-    final static double EPSILON = 0.000000001;
 
        
     /* --------------------------------------------- */
@@ -131,73 +145,268 @@ public class PageRank {
      *   Chooses a probability vector a, and repeatedly computes
      *   aP, aP^2, aP^3... until aP^i = aP^(i+1).
      */
-    void iterate( int numberOfDocs, int maxIterations ) {
+    @SuppressWarnings("unused")
+	void iterate( int numberOfDocs, int maxIterations ) {
 
-		double[] a = new double[numberOfDocs];
-		a[0] = 1;
+		Time time = new Time(System.currentTimeMillis());
 
-		while( maxIterations-- > 0 ) {
+		if(!monteCarlo){
+			double[] a = new double[numberOfDocs];
+			a[0] = 1;
 
-			double[] aNext = new double[numberOfDocs];
-			for ( int i=0; i<numberOfDocs; i++ ) {
-				aNext[i] = BORED / numberOfDocs;
-			}
+			while( maxIterations-- > 0 ) {
 
-			// Compute aP
-			for ( int i = 0; i < numberOfDocs; i++) {
-				HashMap<Integer,Boolean> outlinks = link.get(i);
-				int noOfOutlinks = out[i];
-				
-				// if no outlinks, distribute the rank evenly
-				if(outlinks == null) {
-					for ( int j=0; j<numberOfDocs; j++ ) {
-						aNext[j] += a[i] / numberOfDocs;
-					}
-					continue;
+				double[] aNext = new double[numberOfDocs];
+				for ( int i=0; i<numberOfDocs; i++ ) {
+					aNext[i] = BORED / numberOfDocs;
 				}
-				
 
-				if ( noOfOutlinks == 0 ) {
-					for ( int j=0; j<numberOfDocs; j++ ) {
-						aNext[j] += a[i] / numberOfDocs;
+				// Compute aP
+				for ( int i = 0; i < numberOfDocs; i++) {
+					HashMap<Integer,Boolean> outlinks = link.get(i);
+					int noOfOutlinks = out[i];
+
+					// if no outlinks, distribute the rank evenly
+					if(outlinks == null) {
+						for ( int j=0; j<numberOfDocs; j++ ) {
+							aNext[j] += a[i] / numberOfDocs;
+						}
+						continue;
 					}
-				} else {
-					for ( int j : link.get(i).keySet() ) {
-						aNext[j] += a[i] / noOfOutlinks * (1 - BORED);
+
+
+					if ( noOfOutlinks == 0 ) {
+						for ( int j=0; j<numberOfDocs; j++ ) {
+							aNext[j] += a[i] / numberOfDocs;
+						}
+					} else {
+						for ( int j : link.get(i).keySet() ) {
+							aNext[j] += a[i] / noOfOutlinks * (1 - BORED);
+						}
 					}
 				}
-			}
 
-			// Regularize
-			double sum = 0;
-			for ( int i=0; i<numberOfDocs; i++ ) {
-				sum += aNext[i];
-			}
-			for ( int i=0; i<numberOfDocs; i++ ) {
-				aNext[i] = aNext[i]/sum;
-			}
+				// Regularize
+				double sum = 0;
+				for ( int i=0; i<numberOfDocs; i++ ) {
+					sum += aNext[i];
+				}
+				for ( int i=0; i<numberOfDocs; i++ ) {
+					aNext[i] = aNext[i]/sum;
+				}
 
-			// Check for convergence
-			boolean done = true;
-			for ( int i=0; i<numberOfDocs; i++ ) {
-				// If any of the values differ more than EPSILON, we're not done
-				if ( Math.abs(a[i]-aNext[i]) > EPSILON ) {
-					done = false;
+				// Check for convergence
+				boolean done = true;
+				for ( int i=0; i<numberOfDocs; i++ ) {
+					// If any of the values differ more than EPSILON, we're not done
+					if ( Math.abs(a[i]-aNext[i]) > EPSILON ) {
+						done = false;
+						break;
+					}
+				}
+
+				if ( done ) {
 					break;
 				}
+
+				a = aNext;
+
 			}
 
-			if ( done ) {
-				break;
+			print( a );
+			// printToFile( a );
+			printError( a );
+		}else{	// Monte Carlo approximation
+
+			double[] a = new double[numberOfDocs];
+
+			if(monteCarloType == 1){
+
+				N = numberOfDocs;
+
+				// chose random node and follow links t times
+				for(int i = 0; i < N; i++){
+					// terminate if random is smaller than (1 - c)
+
+					Random rand = new Random();
+					int r = rand.nextInt(numberOfDocs);	// random node
+					for(int j = 0; j < t; j++){
+						// terminate if random is smaller than (1 - c)
+						if(Math.random() < (1 - c)) break;
+						HashMap<Integer,Boolean> outlinks = link.get(r);
+						int noOfOutlinks = out[r];
+						if(outlinks == null) {
+							// if no outlinks, choose random node
+							r = rand.nextInt(numberOfDocs);
+							continue;
+						}
+						if ( noOfOutlinks == 0 ) {
+							// if no outlinks, choose random node
+							r = rand.nextInt(numberOfDocs);
+						} else {
+							int[] outlinkArray = new int[noOfOutlinks];
+							int k = 0;
+							for ( int l : link.get(r).keySet() ) {
+								outlinkArray[k] = l;
+								k++;
+							}
+							r = outlinkArray[rand.nextInt(noOfOutlinks)];
+						}
+					}
+					// add 1 to the rank of the node
+					a[r]++;
+				}
+
+				// normalize the rank
+				for(int i = 0; i < numberOfDocs; i++){
+					a[i] = a[i] / N;
+				}
+
+			}else if(monteCarloType == 2){	// Funkar ej
+
+				N = numberOfDocs*m;
+
+				// start at each page exactly m times
+				for(int j = 0; j < numberOfDocs; j++){
+					int r;
+					for(int k = 0; k < m; k++){	// follow links m times
+						r = j;
+						for(int l = 0; l < t; l++){
+
+							// terminate if random is smaller than (1 - c)
+							if(Math.random() < (1 - c)) break;
+
+							HashMap<Integer,Boolean> outlinks = link.get(r);
+							int noOfOutlinks = out[r];
+							if(outlinks == null) {
+								// if no outlinks, choose random node
+								r = (int)(Math.random() * numberOfDocs);
+								continue;
+							}
+							if ( noOfOutlinks == 0 ) {
+								// if no outlinks, choose random node
+								r = (int)(Math.random() * numberOfDocs);
+							} else {
+								int[] outlinkArray = new int[noOfOutlinks];
+								int m = 0;
+								for ( int n : link.get(r).keySet() ) {
+									outlinkArray[m] = n;
+									m++;
+								}
+								r = outlinkArray[(int)(Math.random() * noOfOutlinks)];
+							}
+						}
+						// add 1 to the rank of the node
+						a[r]++;
+					}
+				}
+				// normalize the rank
+				for(int i = 0; i < numberOfDocs; i++){
+					a[i] = a[i] / N;
+				}
+			}else if(monteCarloType == 4){
+				// Simulate N = mn runs of the random walk {Dt}t≥0 
+				// initiated at each page exactly m times and stopping
+				// when it reaches a dangling node
+
+				N = numberOfDocs*m;
+
+				int visits = 0;
+
+				// start at each page exactly m times
+				for(int j = 0; j < numberOfDocs; j++){
+					
+					int r;
+					for(int k = 0; k < m; k++){	// follow links m times
+						r = j;
+						for(int l = 0; l < t; l++){
+							// add 1 to the rank of the node
+							a[r]++;
+							visits++;
+
+							// terminate if random is smaller than (1 - c)
+							if(Math.random() < (1 - c)) break;
+
+							HashMap<Integer,Boolean> outlinks = link.get(r);
+							int noOfOutlinks = out[r];
+							if(outlinks == null) {
+								// if no outlinks we have reached a dangling node
+								break;
+							}
+							if ( noOfOutlinks == 0 ) {
+								// if no outlinks we have reached a dangling node
+								break;
+							} else {
+								int[] outlinkArray = new int[noOfOutlinks];
+								int m = 0;
+								for ( int n : link.get(r).keySet() ) {
+									outlinkArray[m] = n;
+									m++;
+								}
+								r = outlinkArray[(int)(Math.random() * noOfOutlinks)];
+							}
+						}
+					}
+				}
+				// normalize the rank
+				for(int i = 0; i < numberOfDocs; i++){
+					a[i] = a[i] / visits;
+				}
+			}else if(monteCarloType == 5){
+				// Simulate N runs of the random walk {Dt}t≥0 initiated
+				// at a randomly chosen page and stopping when it
+				// reaches a dangling node
+
+				N = numberOfDocs;
+				int visits = 0;
+
+				// chose random node and follow links t times
+				for(int i = 0; i < N; i++){
+					// terminate if random is smaller than (1 - c)
+
+					Random rand = new Random();
+					int r = rand.nextInt(numberOfDocs);	// random node
+					for(int j = 0; j < t; j++){
+						// add 1 to the rank of the node
+						a[r]++;
+						visits++;
+
+						// terminate if random is smaller than (1 - c)
+						if(Math.random() < (1 - c)) break;
+						HashMap<Integer,Boolean> outlinks = link.get(r);
+						int noOfOutlinks = out[r];
+						if(outlinks == null) {
+							// if no outlinks we have reached a dangling node
+							break;
+						}
+						if ( noOfOutlinks == 0 ) {
+							// if no outlinks we have reached a dangling node
+							break;
+						} else {
+							int[] outlinkArray = new int[noOfOutlinks];
+							int k = 0;
+							for ( int l : link.get(r).keySet() ) {
+								outlinkArray[k] = l;
+								k++;
+							}
+							r = outlinkArray[rand.nextInt(noOfOutlinks)];
+						}
+					}
+				}
+
+				// normalize the rank
+				for(int i = 0; i < numberOfDocs; i++){
+					a[i] = a[i] / visits;
+				}
 			}
 
-			a = aNext;
 
+			print( a );
+			// printToFile( a );
+			printError( a );
+
+			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - time.getTime())/1000 + "s");
 		}
-
-		//print( a );
-		printToFile( a );
-
     }
 
 	// Prints all documents and their corresponding rank to a file
@@ -238,7 +447,43 @@ public class PageRank {
 		}
 	}
 
+	public void printError( double[] a ) {
+		double error = 0;
+		error += Math.pow(a[142] - 0.01593, 2);
+		error += Math.pow(a[151] - 0.01158, 2);
+		error += Math.pow(a[24 ] - 0.01064, 2);
+		error += Math.pow(a[296] - 0.00346, 2);
+		error += Math.pow(a[869] - 0.00285, 2);
+		error += Math.pow(a[346] - 0.00266, 2);
+		error += Math.pow(a[244] - 0.00260, 2);
+		error += Math.pow(a[674] - 0.00247, 2);
+		error += Math.pow(a[455] - 0.00230, 2);
+		error += Math.pow(a[241] - 0.00206, 2);
+		error += Math.pow(a[253] - 0.00204, 2);
+		error += Math.pow(a[217] - 0.00204, 2);
+		error += Math.pow(a[263] - 0.00201, 2);
+		error += Math.pow(a[430] - 0.00195, 2);
+		error += Math.pow(a[6  ] - 0.00182, 2);
+		error += Math.pow(a[226] - 0.00178, 2);
+		error += Math.pow(a[239] - 0.00177, 2);
+		error += Math.pow(a[419] - 0.00172, 2);
+		error += Math.pow(a[135] - 0.00165, 2);
+		error += Math.pow(a[210] - 0.00159, 2);
+		error += Math.pow(a[173] - 0.00156, 2);
+		error += Math.pow(a[397] - 0.00142, 2);
+		error += Math.pow(a[448] - 0.00140, 2);
+		error += Math.pow(a[122] - 0.00138, 2);
+		error += Math.pow(a[90 ] - 0.00135, 2);
+		error += Math.pow(a[77 ] - 0.00130, 2);
+		error += Math.pow(a[49 ] - 0.00117, 2);
+		error += Math.pow(a[636] - 0.00115, 2);
+		error += Math.pow(a[683] - 0.00113, 2);
+		error += Math.pow(a[597] - 0.00110, 2);
+		error = Math.sqrt(error);
 
+		System.out.println("Error: " + error);
+
+	}
     /* --------------------------------------------- */
 
 

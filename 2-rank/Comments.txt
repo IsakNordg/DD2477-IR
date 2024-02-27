@@ -1,9 +1,19 @@
-    ### 2.5.1: Look up the titles of some documents with high rank, and some documents with low rank. Does the ranking make sense?
+	### 2.4
+Math.f
+This does technically point to something of interest, but is it really relevant? I could just look it up myself
+
+JulieB.f
+I was not sure if I should rate "chemistry graduate" as relevant for mathematics graduate programme
+
+YuanNiu.f
+I was not sure if I should rate "science graduate" as relevant for mathematics graduate programme
+
+	### 2.5.1: Look up the titles of some documents with high rank, and some documents with low rank. Does the ranking make sense?
 The documents which have the highest rank seem to be ones of high general relevance to the wiki, since they are about Davis in some way.
 
 The documents with the lowest rank seem to be ones which are just random obscure pages, or ones which are not relevant to Davis at all.
 
-    ### 2.5.2: What is the effect of letting the tf_idf score dominate this ranking? What is the effect of letting the pagerank dominate? What would be a good strategy for selecting an ”optimal” combination? (Remember the quality measures you studied in Task 2.3.)
+	### 2.5.2: What is the effect of letting the tf_idf score dominate this ranking? What is the effect of letting the pagerank dominate? What would be a good strategy for selecting an ”optimal” combination? (Remember the quality measures you studied in Task 2.3.)
 
 If we let tf_idf rating dominate this score, we will get documents that match the query well but that may not be relevant in a pagerank meaning. Letting the pagerank scores dominate makes for documents that are generally relevant showing up more, but they may not match the query so well.
 
