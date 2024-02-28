@@ -19,7 +19,7 @@ public class PageRank {
 	final static int monteCarloType = 5;
 
 	// Number of docs: 17478
-	static int N = 1000000;
+	static int N = 10000000;
 
 	static int t = 1000;
 
@@ -408,82 +408,86 @@ public class PageRank {
 			}
 
 
-			// print( a );
+			print( a );
 			// printToFile( a );
-			printError( a );
+			// printError( a );
 
 			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - time.getTime()) + "ms");
 		}else{
 			// Here we want to iterate until the top 30 documents are stable
-			// We will use method 5, because it is my favorite
+			// We will use method 1, because it is my favorite
 
 			Time timeTilStable = new Time(System.currentTimeMillis());
 
 			double[] a = new double[numberOfDocs];
-
-			int visits = 0;
-
-			double[] prev_a = new double[numberOfDocs];
-			for(int i = 0; i < numberOfDocs; i++){
-				prev_a[i] = 1000;	// set to a high value to make sure we don't terminate too early
-			}
+			double[] a_prev = new double[numberOfDocs];
 
 			boolean stable = false;
-			boolean firstIteration = true;
+			boolean first = true;
+			int iters = 0;
+
 			// chose random node and follow links t times
-			while(!stable){
+			while(!stable){	
 
-				Random rand = new Random();
-				int r = rand.nextInt(numberOfDocs);	// random node
+				for(int i = 0; i < N; i++){
 
-				for(int j = 0; j < t; j++){
-					// add 1 to the rank of the node
-					
-					a[r]++;
-					visits++;
-					
-					// terminate if random is smaller than (1 - c)
-					if(Math.random() < (1 - c)) break;
-					
-					HashMap<Integer,Boolean> outlinks = link.get(r);
-					int noOfOutlinks = out[r];
+					Random rand = new Random();
+					int r = rand.nextInt(numberOfDocs);	// random node
 
-					if(outlinks == null) {
-						// if no outlinks we have reached a dangling node
-						break;
-					}
-					if ( noOfOutlinks == 0 ) {
-						// if no outlinks we have reached a dangling node
-						break;
-					} else {
-						int[] outlinkArray = new int[noOfOutlinks];
-						int k = 0;
-						for ( int l : link.get(r).keySet() ) {
-							outlinkArray[k] = l;
-							k++;
+					for(int j = 0; j < t; j++){
+						// terminate if random is smaller than (1 - c)
+						if(Math.random() < (1 - c)) break;
+
+						HashMap<Integer,Boolean> outlinks = link.get(r);
+						int noOfOutlinks = out[r];
+						if(outlinks == null) {
+							// System.out.println("No outlinks for node 2 " + r);
+							// if no outlinks, choose random node
+							r = rand.nextInt(numberOfDocs);
+							continue;
 						}
-						r = outlinkArray[rand.nextInt(noOfOutlinks)];
+						if ( noOfOutlinks == 0 ) {
+							// System.out.println("No outlinks for node 1 " + r);
+							// if no outlinks, choose random node
+							r = rand.nextInt(numberOfDocs);
+						} else {
+							int[] outlinkArray = new int[noOfOutlinks];
+							int k = 0;
+							for ( int l : link.get(r).keySet() ) {
+								outlinkArray[k] = l;
+								k++;
+							}
+							r = outlinkArray[rand.nextInt(noOfOutlinks)];
+						}
 					}
-				}
-				stable = checkIfStable(a, prev_a);
-				prev_a = a;
-				if(firstIteration){
-					firstIteration = false;
-					stable = false;
+					// add 1 to the rank of the node
+					a[r]++;
+					iters++;
 				}
 
-				// printInline( a );
-
+				if(first){
+					first = false;
+				}else{
+					stable = checkIfStable(a, a_prev);
+					// copy a to a_prev
+					a_prev = a.clone();
+				}
+				// System.out.println("Iterations: " + iters);
+				System.out.print(stable + " ");
+				printInline( a );
 			}
 
 			// normalize the rank
 			for(int i = 0; i < numberOfDocs; i++){
-				a[i] = a[i] / visits;
+				// System.out.println(a[i]);
+				a[i] = a[i] / iters;
 			}
 
 			print( a );
 
-			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - timeTilStable.getTime()) + "s");
+			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - timeTilStable.getTime()) + "ms");
+
+			System.out.println("Iterations: " + iters);
 		}
     }
 
@@ -518,16 +522,11 @@ public class PageRank {
 			int doc = list.get(i);
 			int prev_doc = prev_list.get(i);
 
-
 			if(doc != prev_doc){
-				System.out.println("Not stable: " + i + " " + list.get(i) + " " + prev_list.get(i));
-				System.out.println(doc != prev_doc);
 				return false;
 			}
 		}
-
 		return true;
-
 	}
 
 	// Prints all documents and their corresponding rank to a file
@@ -564,7 +563,7 @@ public class PageRank {
 		// Print the 30 highest ranked documents
 		for ( int i=0; i<30; i++ ) {
 			System.out.print( list.get(i) + ":\t");
-			System.out.printf(" %.5f\n", a[list.get(i)]);
+			System.out.printf(" %.7f\n", a[list.get(i)]);
 		}
 	}
 
