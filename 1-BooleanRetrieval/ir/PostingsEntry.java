@@ -37,33 +37,36 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     // YOUR CODE HERE
     //
 
-    public void computeScore(String term, RankingType rankingType, NormalizationType normType, Index index, double prWeight, int numberOfWords){
-        // # occurences of term in document
-        int tf_dt = this.offset.size();
-        // # documents in the corpus
-        int N = index.docNames.size();
-        // # documents in the corpus which contain the term
-        int df_t = index.getPostings(term).size();
+    public void computeScore(Query query, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
         
-        Double len_d;
-        if(normType == NormalizationType.NUMBER_OF_WORDS){
-            len_d = Double.valueOf( index.docLengths.get(docID) );
-        }else if(normType == NormalizationType.EUCLIDEAN){
-            len_d = index.euclidianLengths.get(docID);
-        }else{
-            System.out.println("Normalization type not recognized. Using default (NUMBER_OF_WORDS)");
-            len_d = Double.valueOf( index.docLengths.get(docID) );
+        if(rankingType == RankingType.PAGERANK){
+            this.score = pagerank;
+            return;
         }
 
-        if(rankingType == RankingType.TF_IDF){
-            Double tf_idf = tf_dt*(Math.log(N/df_t)/len_d);
-            // score = ((number of occurences of term in document) / (total number of words in document)) * tf_idf
-            this.score = tf_idf/len_d;
-        }else if(rankingType == RankingType.PAGERANK){
-            this.score = pagerank;
-        }else if(rankingType == RankingType.COMBINATION){
-            this.score = tf_dt*(Math.log(N/df_t)/len_d)*prWeight + pagerank * (1-prWeight);
+        int N = index.docNames.size();
+
+        // compute tf-idf
+        for(int i = 0; i < query.queryterm.size(); i++){
+            int df = index.getPostings(query.queryterm.get(i).term).size();
+            System.out.println("df: " + df + " N: " + N + " offset: " + offset.size() + " term: " + query.queryterm.get(i).term);
+            Double idf = Math.log(N/df);
+            this.score += idf * offset.size();
         }
+        
+        // normalize score 
+        if(normType == NormalizationType.NUMBER_OF_WORDS){
+
+        }else if(normType == NormalizationType.EUCLIDEAN){
+            this.score = this.score / index.euclidianLengths.get(docID);
+        }
+
+        // combine with pagerank
+        if(rankingType == RankingType.COMBINATION){
+            this.score = this.score * prWeight + pagerank * (1-prWeight);
+        }
+
+        return;
     }
     
     public PostingsEntry(int docID){
