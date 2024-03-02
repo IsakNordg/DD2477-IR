@@ -105,7 +105,7 @@ public class Searcher {
 
             for(int j = 0; j < pl.size(); j++){
                 PostingsEntry pe = pl.get(j);
-                pe.computeScore(query, rankingType, normType, index, prWeight);
+                pe.computeScore(query.queryterm.get(i).term, rankingType, normType, index, prWeight, index.docLengths.get(pe.docID));
             }
 
             if(i == 0){

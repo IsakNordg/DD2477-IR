@@ -37,14 +37,14 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     // YOUR CODE HERE
     //
 
-    public void computeScore(Query query, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
+    public void computeScore(String term, RankingType rankingType, NormalizationType normType, Index index, double prWeight, int numberOfWords){
         // # occurences of term in document
         int tf_dt = this.offset.size();
         // # documents in the corpus
         int N = index.docNames.size();
         // # documents in the corpus which contain the term
-        int df_t = index.getPostings(query.queryterm.get(0).term).size();
-        // # of words in d
+        int df_t = index.getPostings(term).size();
+        
         Double len_d;
         if(normType == NormalizationType.NUMBER_OF_WORDS){
             len_d = Double.valueOf( index.docLengths.get(docID) );
@@ -56,7 +56,9 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         }
 
         if(rankingType == RankingType.TF_IDF){
-            this.score = tf_dt*(Math.log(N/df_t)/len_d);
+            Double tf_idf = tf_dt*(Math.log(N/df_t)/len_d);
+            // score = ((number of occurences of term in document) / (total number of words in document)) * tf_idf
+            this.score = tf_idf/len_d;
         }else if(rankingType == RankingType.PAGERANK){
             this.score = pagerank;
         }else if(rankingType == RankingType.COMBINATION){
