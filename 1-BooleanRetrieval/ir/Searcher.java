@@ -97,20 +97,24 @@ public class Searcher {
 
 
     private PostingsList RankedSearch( Query query, QueryType queryType, RankingType rankingType, NormalizationType normType) {
+        
+        
         PostingsList result = new PostingsList();
     
-        PostingsList pl = index.getPostings(query.queryterm.get(0).term);
-        for(int i = 1; i < query.queryterm.size(); i++){
-            PostingsList pl2 = index.getPostings(query.queryterm.get(i).term);
-            pl = union(pl, pl2);
+        for(int i = 0; i < query.queryterm.size(); i++){
+            PostingsList pl = index.getPostings(query.queryterm.get(i).term);
+            PostingsList tmppl = new PostingsList();
+            for(int j = 0; j < pl.size(); j++){
+                PostingsEntry pe = pl.get(j);
+                pe.computeScore(query.queryterm.get(i).term, rankingType, normType, index, prWeight);
+                tmppl.add(pe);
+            }
+            if(i == 0){
+                result = tmppl;
+            }else{
+                result = union(result, tmppl);
+            }
         }
-
-        for(int i = 0; i < pl.size(); i++){
-            PostingsEntry pe = pl.get(i);
-            pe.computeScore(query, rankingType, normType, index, prWeight);
-            result.add(pe);
-        }
-
 
         Collections.sort(result.list);
         return result;

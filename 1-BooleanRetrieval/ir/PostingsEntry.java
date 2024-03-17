@@ -37,36 +37,30 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     // YOUR CODE HERE
     //
 
-    public void computeScore(Query query, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
-        
+    public void computeScore(String term, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
         if(rankingType == RankingType.PAGERANK){
             this.score = pagerank;
             return;
         }
-
-        int N = index.docNames.size();
-
-        // compute tf-idf
-        for(int i = 0; i < query.queryterm.size(); i++){
-            int df = index.getPostings(query.queryterm.get(i).term).size();
-            System.out.println("df: " + df + " N: " + N + " offset: " + offset.size() + " term: " + query.queryterm.get(i).term);
-            Double idf = Math.log(N/df);
-            this.score += idf * offset.size();
-        }
         
-        // normalize score 
+        int N = index.docNames.size();            // Number of documents in collection
+        int tf = offset.size();                    // Number of occurrences of term in document
+        int df = index.getPostings(term).size();    // Number of documents containing term
+        double idf = Math.log(N/df); 
+        double tfidf = tf * idf;
+
+        // Should I normalize before or after combining with pagerank?
+        if(rankingType == RankingType.TF_IDF){
+            score = tfidf;
+        } else if(rankingType == RankingType.COMBINATION){
+            score = prWeight * pagerank + (1 - prWeight) * tfidf;
+        }
+
         if(normType == NormalizationType.NUMBER_OF_WORDS){
-
+            score = score / index.docLengths.get(docID);
         }else if(normType == NormalizationType.EUCLIDEAN){
-            this.score = this.score / index.euclidianLengths.get(docID);
+            score = score / index.euclidianLengths.get(docID);
         }
-
-        // combine with pagerank
-        if(rankingType == RankingType.COMBINATION){
-            this.score = this.score * prWeight + pagerank * (1-prWeight);
-        }
-
-        return;
     }
     
     public PostingsEntry(int docID){

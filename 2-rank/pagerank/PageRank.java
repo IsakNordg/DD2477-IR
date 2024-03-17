@@ -12,7 +12,7 @@ public class PageRank {
 
 	final static Double c = 0.85;
 
-	final static boolean monteCarlo = true;
+	final static boolean monteCarlo = false;
 
 	final static boolean iterate = true;
 
@@ -157,6 +157,7 @@ public class PageRank {
 		Time time = new Time(System.currentTimeMillis());
 
 		if(!monteCarlo){
+			System.out.println("Not Monte Carlo");
 			double[] a = new double[numberOfDocs];
 			a[0] = 1;
 
@@ -180,7 +181,6 @@ public class PageRank {
 						continue;
 					}
 
-
 					if ( noOfOutlinks == 0 ) {
 						for ( int j=0; j<numberOfDocs; j++ ) {
 							aNext[j] += a[i] / numberOfDocs;
@@ -197,6 +197,7 @@ public class PageRank {
 				for ( int i=0; i<numberOfDocs; i++ ) {
 					sum += aNext[i];
 				}
+
 				for ( int i=0; i<numberOfDocs; i++ ) {
 					aNext[i] = aNext[i]/sum;
 				}
@@ -216,12 +217,11 @@ public class PageRank {
 				}
 
 				a = aNext;
-
 			}
 
 			print( a );
 			// printToFile( a );
-			printError( a );
+			// printError( a );
 		}else if(!iterate){	// Monte Carlo approximation
 
 			double[] a = new double[numberOfDocs];
