@@ -55,14 +55,6 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         } else if(rankingType == RankingType.COMBINATION){
             score = prWeight * pagerank + (1 - prWeight) * tfidf;
         }
-
-        // Normalize score
-        if(normType == NormalizationType.NUMBER_OF_WORDS){
-            score = score / index.docLengths.get(docID);
-        }else if(normType == NormalizationType.EUCLIDEAN){
-            score = score / index.euclidianLengths.get(docID);
-            System.out.println("Score: " + score + " Euclidian length: " + index.euclidianLengths.get(docID));
-        }
     }
     
     public PostingsEntry(int docID){
