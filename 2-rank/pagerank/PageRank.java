@@ -36,7 +36,7 @@ public class PageRank {
      *   Convergence criterion: Transition probabilities do not 
      *   change more that EPSILON from one iteration to another.
      */
-    final static double EPSILON = 0.01;
+    final static double EPSILON = 0.000001;
 
     /**
      *   Mapping from document names to document numbers.
@@ -172,7 +172,7 @@ public class PageRank {
 				for ( int i = 0; i < numberOfDocs; i++) {
 					HashMap<Integer,Boolean> outlinks = link.get(i);
 					int noOfOutlinks = out[i];
-
+					
 					// if no outlinks, distribute the rank evenly
 					if(outlinks == null) {
 						for ( int j=0; j<numberOfDocs; j++ ) {
@@ -180,6 +180,7 @@ public class PageRank {
 						}
 						continue;
 					}
+					
 
 					if ( noOfOutlinks == 0 ) {
 						for ( int j=0; j<numberOfDocs; j++ ) {
@@ -197,7 +198,6 @@ public class PageRank {
 				for ( int i=0; i<numberOfDocs; i++ ) {
 					sum += aNext[i];
 				}
-
 				for ( int i=0; i<numberOfDocs; i++ ) {
 					aNext[i] = aNext[i]/sum;
 				}
@@ -217,6 +217,7 @@ public class PageRank {
 				}
 
 				a = aNext;
+
 			}
 
 			print( a );
@@ -562,7 +563,7 @@ public class PageRank {
 
 		// Print the 30 highest ranked documents
 		for ( int i=0; i<30; i++ ) {
-			System.out.print( list.get(i) + ":\t");
+			System.out.print( docName[list.get(i)] + ":\t");
 			System.out.printf(" %.7f\n", a[list.get(i)]);
 		}
 	}
