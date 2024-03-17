@@ -77,8 +77,10 @@ public class Indexer {
                         while ( tok.hasMoreTokens() ) {
                             String token = tok.nextToken();
                             insertIntoIndex( docID, token, offset++ );
-                            if(wordCount.containsKey(docID)){
-                                wordCount.put(token, wordCount.get(docID) + 1);
+
+                            // Count the number of times each word appears in the document
+                            if(wordCount.containsKey(token)){
+                                wordCount.put(token, wordCount.get(token) + 1);
                             }else{
                                 wordCount.put(token, 1);
                             }
@@ -87,12 +89,14 @@ public class Indexer {
                         index.docNames.put( docID, f.getPath() );
                         index.docLengths.put( docID, offset );
 
+                        // If the euclidian index does not exist, calculate the euclidian length of the document
                         if(!euclidianExists){
-                            Double sum = 0.0;
-                            for(String token : wordCount.keySet()){
-                                sum += Math.pow(wordCount.get(token), 2);
+                            double euclidianLength = 0;
+                            for(String word : wordCount.keySet()){
+                                double tf = wordCount.get(word);
+                                euclidianLength += Math.pow(tf, 2);
                             }
-                            Double euclidianLength = Math.sqrt(sum);
+                            euclidianLength = Math.sqrt(euclidianLength);
                             index.euclidianLengths.put(docID, euclidianLength);
                         }
                         reader.close();

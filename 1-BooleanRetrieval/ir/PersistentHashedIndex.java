@@ -75,6 +75,8 @@ public class PersistentHashedIndex implements Index {
 
     private HashMap<Integer,Double> pagerank = new HashMap<Integer,Double>();
 
+    // public HashMap<Integer,Double> euclidianLengths = new HashMap<Integer,Double>();
+
     // ===================================================================
 
     /**
@@ -456,6 +458,7 @@ public class PersistentHashedIndex implements Index {
     }
 
     public void readPageRank(String filename){
+        System.out.println("Reading pagerank...");
         File pr = new File(filename);
         Scanner in;
         try {
@@ -473,6 +476,7 @@ public class PersistentHashedIndex implements Index {
     }
 
     public void readEuclideanIndex(String filename){
+        System.out.println("Reading euclidean index...");
         File el = new File(filename);
         Scanner in;
         try {
@@ -488,6 +492,7 @@ public class PersistentHashedIndex implements Index {
     }
 
     public void writeEuclideanIndex(String filename){
+        System.out.println("Writing euclidean index...");
         try {
             FileOutputStream fout = new FileOutputStream( filename );
             for ( Map.Entry<Integer,Double> entry : euclidianLengths.entrySet() ) {

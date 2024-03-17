@@ -23,7 +23,8 @@ public interface Index {
     public HashMap<Integer,Integer> docLengths = new HashMap<Integer,Integer>();
 
     /** Mapping from document identifier to document euclidian length */
-    HashMap<Integer,Double> euclidianLengths = new HashMap<Integer,Double>();
+    public HashMap<Integer,Double> euclidianLengths = new HashMap<Integer,Double>();
+
 
     /** Inserts a token into the index. */
     public void insert( String token, int docID, int offset );

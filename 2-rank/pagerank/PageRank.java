@@ -410,7 +410,7 @@ public class PageRank {
 
 
 			print( a );
-			// printToFile( a );
+			printToFile( a );
 			// printError( a );
 
 			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - time.getTime()) + "ms");

@@ -56,7 +56,7 @@ public class Engine {
     String rank_file = "";
 
     //public static String euclidean_File = "euclideanIndex.txt";
-    String euclidean_File = "";
+    String euclidean_File = "./index/euclideanIndex.txt";
 
     /** For persistent indexes, we might not need to do any indexing. */
     boolean is_indexing = true;
@@ -74,7 +74,18 @@ public class Engine {
      */
     public Engine( String[] args ) {
         decodeArgs( args );
+        
         index.readPageRank(rank_file);
+
+        // check if euclidean index exists
+        File euclideanIndex = new File(euclidean_File);
+        if (euclideanIndex.exists()) {
+            euclidianExists = true;
+            index.readEuclideanIndex(euclidean_File);
+        } else {
+            euclidianExists = false;
+        }
+
         indexer = new Indexer( index, kgIndex, patterns_file );
         searcher = new Searcher( index, kgIndex );
         gui = new SearchGUI( this );
@@ -90,22 +101,12 @@ public class Engine {
                 gui.displayInfoText( "Indexing, please wait..." );
                 long startTime = System.currentTimeMillis();
 
-                // check if euclidean index exists
-                File euclideanIndex = new File(euclidean_File);
-                if (euclideanIndex.exists()) {
-                    euclidianExists = true;
-                } else {
-                    euclidianExists = false;
-                }
-
                 for ( int i=0; i<dirNames.size(); i++ ) {
                     File dokDir = new File( dirNames.get( i ));
                     indexer.processFiles( dokDir, is_indexing, euclidianExists );
                 }
 
-                if(euclidianExists){
-                    index.readEuclideanIndex(euclidean_File);
-                }else{
+                if(!euclidianExists){
                     index.writeEuclideanIndex(euclidean_File);
                 }
 
@@ -115,6 +116,9 @@ public class Engine {
             }
         } else {
             gui.displayInfoText( "Index is loaded from disk" );
+            if(!euclidianExists){
+                System.out.println("Euclidean index does not exist. Please re-index");
+            }
         }
     }
 

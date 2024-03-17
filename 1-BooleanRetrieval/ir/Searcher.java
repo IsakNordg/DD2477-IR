@@ -114,6 +114,7 @@ public class Searcher {
             }else{
                 result = union(result, tmppl);
             }
+
         }
 
         Collections.sort(result.list);
