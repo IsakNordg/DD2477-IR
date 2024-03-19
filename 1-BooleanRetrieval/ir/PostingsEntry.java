@@ -49,6 +49,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         double idf = Math.log(N/df); 
         double tfidf = tf * idf;
 
+
         // Should I normalize before or after combining with pagerank?
         if(rankingType == RankingType.TF_IDF){
             score = tfidf;

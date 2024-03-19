@@ -116,6 +116,33 @@ public class HashedIndex implements Index {
         }
     }
 
+    public void createAndWriteEuclideanIndex(String filename){
+        System.out.println("Creating euclidean index...");
+        // for every document in the index, calculate the euclidean length
+
+        int N = docNames.size();
+
+        HashMap<String,Integer> tokenToDf = new HashMap<String,Integer>();
+
+        for (Map.Entry<String,PostingsList> entry : index.entrySet()) {
+            String token = entry.getKey();
+            tokenToDf.put(token, getPostings(token).size());
+        }
+
+        for(Integer docID : docWords.keySet()){
+            double euclidianLength = 0;
+            for(String token : docWords.get(docID).keySet()){
+                double tf = docWords.get(docID).get(token);
+                double idf = Math.log(N / tokenToDf.get(token));
+
+                euclidianLength += Math.pow(tf * idf, 2);
+            }
+            euclidianLengths.put(docID, Math.sqrt(euclidianLength));
+        }
+
+        writeEuclideanIndex(filename);
+    }
+
     public void writeEuclideanIndex(String filename){
         try {
             FileOutputStream fout = new FileOutputStream( filename );

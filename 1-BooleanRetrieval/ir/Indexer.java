@@ -73,32 +73,17 @@ public class Indexer {
                         Tokenizer tok = new Tokenizer( reader, true, false, true, patterns_file );
                         int offset = 0;
                         HashMap<String,Integer> wordCount = new HashMap<String,Integer>();
-                        
+
                         while ( tok.hasMoreTokens() ) {
                             String token = tok.nextToken();
                             insertIntoIndex( docID, token, offset++ );
-
-                            // Count the number of times each word appears in the document
-                            if(wordCount.containsKey(token)){
-                                wordCount.put(token, wordCount.get(token) + 1);
-                            }else{
-                                wordCount.put(token, 1);
-                            }
+                            wordCount.put(token, wordCount.getOrDefault(token, 0) + 1);
                         }
 
                         index.docNames.put( docID, f.getPath() );
                         index.docLengths.put( docID, offset );
+                        index.docWords.put(docID, wordCount);
 
-                        // If the euclidian index does not exist, calculate the euclidian length of the document
-                        if(!euclidianExists){
-                            double euclidianLength = 0;
-                            for(String word : wordCount.keySet()){
-                                double tf = wordCount.get(word);
-                                euclidianLength += Math.pow(tf, 2);
-                            }
-                            euclidianLength = Math.sqrt(euclidianLength);
-                            index.euclidianLengths.put(docID, euclidianLength);
-                        }
                         reader.close();
                     } catch ( IOException e ) {
                         System.err.println( "Warning: IOException during indexing." );

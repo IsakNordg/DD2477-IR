@@ -12,14 +12,14 @@ public class PageRank {
 
 	final static Double c = 0.85;
 
-	final static boolean monteCarlo = false;
+	final static boolean monteCarlo = true;
 
-	final static boolean iterate = true;
+	final static boolean iterateTilStable = false;
 
-	final static int monteCarloType = 5;
+	final static int monteCarloType = 1;
 
 	// Number of docs: 17478
-	static int N = 10000000;
+	static int N = 10000;
 
 	static int t = 1000;
 
@@ -223,7 +223,7 @@ public class PageRank {
 			print( a );
 			// printToFile( a );
 			// printError( a );
-		}else if(!iterate){	// Monte Carlo approximation
+		}else if(!iterateTilStable){	// Monte Carlo approximation
 
 			double[] a = new double[numberOfDocs];
 			if(monteCarloType == 1){
@@ -409,9 +409,9 @@ public class PageRank {
 			}
 
 
-			print( a );
-			printToFile( a );
-			// printError( a );
+			// print( a );
+			// printToFile( a );
+			printError( a );
 
 			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - time.getTime()) + "ms");
 		}else{
@@ -474,8 +474,8 @@ public class PageRank {
 					a_prev = a.clone();
 				}
 				// System.out.println("Iterations: " + iters);
-				System.out.print(stable + " ");
-				printInline( a );
+				// System.out.print(stable + " ");
+				// printInline( a );
 			}
 
 			// normalize the rank
@@ -485,6 +485,8 @@ public class PageRank {
 			}
 
 			print( a );
+
+			printError(a);
 
 			System.out.println("Time: " + (new Time(System.currentTimeMillis()).getTime() - timeTilStable.getTime()) + "ms");
 

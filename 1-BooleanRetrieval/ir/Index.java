@@ -25,6 +25,8 @@ public interface Index {
     /** Mapping from document identifier to document euclidian length */
     public HashMap<Integer,Double> euclidianLengths = new HashMap<Integer,Double>();
 
+    public HashMap<Integer,HashMap<String,Integer>> docWords = new HashMap<Integer,HashMap<String,Integer>>();
+
 
     /** Inserts a token into the index. */
     public void insert( String token, int docID, int offset );
@@ -38,6 +40,8 @@ public interface Index {
     public void readPageRank(String filename);
 
     public void writeEuclideanIndex(String euclidean_File);
+
+    public void createAndWriteEuclideanIndex(String filename);
 
     public void readEuclideanIndex(String euclidean_File);
 }

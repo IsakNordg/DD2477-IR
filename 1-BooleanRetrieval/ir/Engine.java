@@ -77,15 +77,6 @@ public class Engine {
         
         index.readPageRank(rank_file);
 
-        // check if euclidean index exists
-        File euclideanIndex = new File(euclidean_File);
-        if (euclideanIndex.exists()) {
-            euclidianExists = true;
-            index.readEuclideanIndex(euclidean_File);
-        } else {
-            euclidianExists = false;
-        }
-
         indexer = new Indexer( index, kgIndex, patterns_file );
         searcher = new Searcher( index, kgIndex );
         gui = new SearchGUI( this );
@@ -106,9 +97,14 @@ public class Engine {
                     indexer.processFiles( dokDir, is_indexing, euclidianExists );
                 }
 
-                if(!euclidianExists){
-                    index.writeEuclideanIndex(euclidean_File);
+                // check if euclidean index exists
+                File euclideanIndex = new File(euclidean_File);
+                if (euclideanIndex.exists()) {
+                    index.readEuclideanIndex(euclidean_File);
+                } else {
+                    index.createAndWriteEuclideanIndex(euclidean_File);
                 }
+
 
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 gui.displayInfoText( String.format( "Indexing done in %.1f seconds.", elapsedTime/1000.0 ));

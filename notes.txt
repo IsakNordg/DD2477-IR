@@ -1,0 +1,2 @@
+
+Någonting med normaliseringen när man använder euclidian fungerar inte.
