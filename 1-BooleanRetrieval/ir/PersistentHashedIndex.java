@@ -395,6 +395,7 @@ public class PersistentHashedIndex implements Index {
             pl.add(pe);
             index.put(token, pl);
         }
+        
         // existing token
         else{
             PostingsList pl = index.get(token);

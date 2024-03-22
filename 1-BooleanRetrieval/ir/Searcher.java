@@ -38,6 +38,9 @@ public class Searcher {
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE
         //
 
+        System.out.println("Query Size: " + query.size());
+        System.out.println("Query: " + query.toString());
+
         if(query.size() == 1 && queryType == QueryType.INTERSECTION_QUERY){
             return index.getPostings(query.queryterm.get(0).term);
         }else{
@@ -97,16 +100,20 @@ public class Searcher {
 
 
     private PostingsList RankedSearch( Query query, QueryType queryType, RankingType rankingType, NormalizationType normType) {
-        
-        
         PostingsList result = new PostingsList();
     
         for(int i = 0; i < query.queryterm.size(); i++){
             PostingsList pl = index.getPostings(query.queryterm.get(i).term);
             PostingsList tmppl = new PostingsList();
+            
+            int N = index.docNames.size();            // Number of documents in collection
+            int df = index.getPostings(query.queryterm.get(i).term).size();    // Number of documents containing term
+            double idf = Math.log(N/df);          // Inverse document frequency
+            
             for(int j = 0; j < pl.size(); j++){
                 PostingsEntry pe = pl.get(j);
-                pe.computeScore(query.queryterm.get(i).term, rankingType, normType, index, prWeight);
+                pe.computeScore(idf, rankingType, normType, index, prWeight);
+                pe.score = pe.score * query.queryterm.get(i).weight;
                 tmppl.add(pe);
             }
             if(i == 0){

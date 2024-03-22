@@ -19,6 +19,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     public double score = 0;
     public double pagerank = 0;
     
+    // offset is a list of integers, where each integer is the position of the term in the document
     public ArrayList offset = new ArrayList<>();
 
     /**
@@ -37,16 +38,13 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     // YOUR CODE HERE
     //
 
-    public void computeScore(String term, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
+    public void computeScore(double idf, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
         if(rankingType == RankingType.PAGERANK){
             this.score = pagerank;
             return;
         }
         
-        int N = index.docNames.size();            // Number of documents in collection
         int tf = offset.size();                    // Number of occurrences of term in document
-        int df = index.getPostings(term).size();    // Number of documents containing term
-        double idf = Math.log(N/df); 
         double tfidf = tf * idf;
 
 
