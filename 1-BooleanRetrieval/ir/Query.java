@@ -39,6 +39,8 @@ public class Query {
      */
     public ArrayList<QueryTerm> queryterm = new ArrayList<QueryTerm>();
 
+    public ArrayList<Integer> docsSelected = new ArrayList<Integer>();
+
     /**  
      *  Relevance feedback constant alpha (= weight of original query terms). 
      *  Should be between 0 and 1.
@@ -68,9 +70,8 @@ public class Query {
         StringTokenizer tok = new StringTokenizer( queryString );
         while ( tok.hasMoreTokens() ) {
             queryterm.add( new QueryTerm(tok.nextToken(), 1.0) );
-        }    
+        }
     }
-    
     
     /**
      *  Returns the number of terms
@@ -126,10 +127,12 @@ public class Query {
         int numberOfRelevantDocuments = 0;
         for(int i = 0; i < docIsRelevant.length; i++){   // each pe is a document which was returned by the search engine
             if(docIsRelevant[i]){
-                System.out.println(i + " is relevant");
                 PostingsEntry pe = results.get(i);
                 // Add the terms of the relevant documents to the query
                 wordCount = getTermsFromDoc(engine.index.docNames.get(pe.docID), wordCount);
+
+                docsSelected.add(pe.docID);
+
                 numberOfRelevantDocuments++;
             }
         }
@@ -143,6 +146,7 @@ public class Query {
         for(String term : wordCount.keySet()){
             queryterm.add(new QueryTerm(term, wordCount.get(term) * beta));
         }
+
     }
 
     private HashMap<String,Double> getTermsFromDoc(String docName, HashMap<String,Double> wordCount){

@@ -7,13 +7,20 @@
 
 package ir;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 /**
  *  Searches an index for results of a query.
  */
 public class Searcher {
+
+    private boolean printDCG = true;
 
     Double prWeight = 0.5;
 
@@ -27,6 +34,25 @@ public class Searcher {
     public Searcher( Index index, KGramIndex kgIndex ) {
         this.index = index;
         this.kgIndex = kgIndex;
+
+        readAverageRelevanceRatings();
+    }
+
+    private HashMap<String, Integer> averageRatings = new HashMap<String, Integer>();
+
+    private void readAverageRelevanceRatings(){
+        try {
+            File f = new File("C:\\GitHub\\DD2477-IR\\1-BooleanRetrieval\\average_relevance_filtered.txt");
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");
+                averageRatings.put(parts[0], Integer.parseInt(parts[1]));
+            }
+            br.close();
+        } catch (IOException e){
+            System.out.println("Error reading file");
+        }
     }
 
     /**
@@ -38,8 +64,8 @@ public class Searcher {
         //  REPLACE THE STATEMENT BELOW WITH YOUR CODE
         //
 
-        System.out.println("Query Size: " + query.size());
-        System.out.println("Query: " + query.toString());
+        // System.out.println("Query Size: " + query.size());
+        // System.out.println("Query: " + query.toString());
 
         if(query.size() == 1 && queryType == QueryType.INTERSECTION_QUERY){
             return index.getPostings(query.queryterm.get(0).term);
@@ -134,6 +160,39 @@ public class Searcher {
         }
 
         Collections.sort(result.list);
+
+        if(printDCG){
+            double DCG = 0;
+            int i = 0;
+            int max = Math.min(50, result.size());
+            for(PostingsEntry pe : result.list){
+                String docName = index.docNames.get(pe.docID);
+                String[] parts = docName.split("\\\\");
+                docName = parts[parts.length - 1];
+
+                Integer rating = averageRatings.get(docName);
+
+                if(query.docsSelected.contains(pe.docID)){
+                    continue;
+                }
+
+                if(rating == null){
+                    rating = 0;
+                }
+                
+                if(i >= max){
+                    break;
+                }
+
+                int rank = i + 1;
+                double log = Math.log(rank + 1) / Math.log(2);
+                DCG += rating / log;
+
+                i++;
+            }
+            System.out.println("DCG: " + DCG);
+        }
+
         return result;
     }
 
