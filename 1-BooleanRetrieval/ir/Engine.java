@@ -28,9 +28,9 @@ public class Engine {
     Searcher searcher;
 
     /** K-gram index */
-    KGramIndex kgIndex = null;
+    // KGramIndex kgIndex = null;
     // Assignment 3: Comment the line above and uncomment the next line
-    // KgramIndex kgIndex = new KGramIndex(2);
+    KGramIndex kgIndex = new KGramIndex(2);
 
     /** Spell checker */
     SpellChecker speller;
@@ -109,6 +109,10 @@ public class Engine {
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 gui.displayInfoText( String.format( "Indexing done in %.1f seconds.", elapsedTime/1000.0 ));
                 index.cleanup();
+
+                System.out.println("Number of words containing \"ve\"" + kgIndex.getPostings("ve").size() );
+                System.out.println("Number of words containing \"th\" and \"he\"" + 
+                                    kgIndex.intersect(kgIndex.getPostings("th"), kgIndex.getPostings("he")).size() );
             }
         } else {
             gui.displayInfoText( "Index is loaded from disk" );

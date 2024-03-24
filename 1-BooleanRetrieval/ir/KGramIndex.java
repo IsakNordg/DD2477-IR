@@ -50,26 +50,84 @@ public class KGramIndex {
     /**
      *  Get intersection of two postings lists
      */
-    private List<KGramPostingsEntry> intersect(List<KGramPostingsEntry> p1, List<KGramPostingsEntry> p2) {
-        // 
-        // YOUR CODE HERE
-        //
-        return null;
+    public List<KGramPostingsEntry> intersect(List<KGramPostingsEntry> p1, List<KGramPostingsEntry> p2) {
+        if(p1 == null) return p2;
+        if(p2 == null) return p1;
+
+        int i = 0, j = 0;
+        List<KGramPostingsEntry> result = new ArrayList<KGramPostingsEntry>();
+        while (i < p1.size() && j < p2.size()){
+            int id1 = p1.get(i).tokenID;
+            int id2 = p2.get(j).tokenID;
+            if (id1 == id2) {
+                result.add(p1.get(i));
+                i++; j++;
+            } else if (id1 < id2) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+        return result;
     }
 
 
     /** Inserts all k-grams from a token into the index. */
     public void insert( String token ) {
-        //
-        // YOUR CODE HERE
-        //
+        
+        String paddedToken = "^" + token + "$";
+        for (int i = 0; i < paddedToken.length() - K + 1; i++) {
+            String kgram = paddedToken.substring(i, i + K);
+
+            Integer ID = getIDByTerm(token);
+            if (ID == null) {
+                ID = generateTermID();
+                id2term.put(ID, token);
+                term2id.put(token, ID);
+            }
+
+            if (!index.containsKey(kgram)) {
+                index.put(kgram, new ArrayList<KGramPostingsEntry>());
+            }
+            
+            // This could be made faster I think
+            List<KGramPostingsEntry> oldPostings = (List<KGramPostingsEntry>) index.get(kgram);
+            KGramPostingsEntry newPosting = new KGramPostingsEntry(ID);
+
+            List<KGramPostingsEntry> postings = insertSorted(oldPostings, newPosting);
+
+            index.put(kgram, postings);
+        }
     }
+
+    private List<KGramPostingsEntry> insertSorted(List<KGramPostingsEntry> postings, KGramPostingsEntry newPosting) {
+        List<KGramPostingsEntry> newPostings = new ArrayList<KGramPostingsEntry>();
+        int i = 0;
+        while (i < postings.size() && postings.get(i).tokenID < newPosting.tokenID) {
+            newPostings.add(postings.get(i));
+            if(postings.get(i).tokenID == newPosting.tokenID) {
+                return postings;
+            }
+            i++;
+        }
+        newPostings.add(newPosting);
+        while (i < postings.size()) {
+            newPostings.add(postings.get(i));
+            if(postings.get(i).tokenID == newPosting.tokenID) {
+                return postings;
+            }
+            i++;
+        }
+        return newPostings;
+    }
+
 
     /** Get postings for the given k-gram */
     public List<KGramPostingsEntry> getPostings(String kgram) {
-        //
-        // YOUR CODE HERE
-        //
+        
+        if (index.containsKey(kgram)) {
+            return index.get(kgram);
+        }
         return null;
     }
 
