@@ -115,6 +115,8 @@ public class Engine {
                     System.out.println("Number of words containing \"th\" and \"he\": " + 
                                         kgIndex.intersect(kgIndex.getPostings("th"), kgIndex.getPostings("he")).size() );
                 }
+                System.out.println("Contains time: " + kgIndex.containsTime);
+                System.out.println("Intersect time: " + kgIndex.intersectTime);
             }
         } else {
             gui.displayInfoText( "Index is loaded from disk" );

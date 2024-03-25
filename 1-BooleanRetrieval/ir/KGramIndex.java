@@ -51,6 +51,7 @@ public class KGramIndex {
      *  Get intersection of two postings lists
      */
     public List<KGramPostingsEntry> intersect(List<KGramPostingsEntry> p1, List<KGramPostingsEntry> p2) {
+        long startTime = System.nanoTime();
         if(p1 == null) return p2;
         if(p2 == null) return p1;
 
@@ -71,9 +72,14 @@ public class KGramIndex {
                 j++;
             }
         }
+        long endTime = System.nanoTime();
+        intersectTime += endTime - startTime;
+        // System.out.println("Intersect time: " + intersectTime);
         return result;
     }
 
+    public long containsTime = 0;
+    public long intersectTime = 0;
 
     /** Inserts all k-grams from a token into the index. */
     public void insert( String token ) {
@@ -93,54 +99,62 @@ public class KGramIndex {
                 index.put(kgram, new ArrayList<KGramPostingsEntry>());
             }
             
-            // This could be made faster I think
-            /* 
-            List<KGramPostingsEntry> oldPostings = (List<KGramPostingsEntry>) index.get(kgram);
+            List<KGramPostingsEntry> postings = (List<KGramPostingsEntry>) index.get(kgram);
             KGramPostingsEntry newPosting = new KGramPostingsEntry(ID);
 
-            List<KGramPostingsEntry> postings = insertSorted(oldPostings, newPosting);
-            */
+            // long startTime = System.nanoTime();
+            if(!contains(postings, newPosting)){
+                // long endTime = System.nanoTime();
+                // containsTime += endTime - startTime;
 
-            List<KGramPostingsEntry> postings = index.get(kgram);
-            KGramPostingsEntry newPosting = new KGramPostingsEntry(ID);
-            
-            if(postings.size() == 0){
                 postings.add(newPosting);
-            }else{
-                int j = 0;
-                while(j < postings.size() && postings.get(j).tokenID < newPosting.tokenID){
-                    j++;
-                }
-                if(j == postings.size()){
-                    postings.add(newPosting);
-                }else if(postings.get(j).tokenID > newPosting.tokenID){
-                    postings.add(j, newPosting);
-                }
+                index.put(kgram, postings);
             }
         }
     }
 
+    private boolean contains(List<KGramPostingsEntry> postings, KGramPostingsEntry newPosting) {
+        if (postings == null) {
+            return false;
+        }
+
+        // binary search
+        int left = 0;
+        int right = postings.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (postings.get(mid).tokenID == newPosting.tokenID) {
+                return true;
+            } else if (postings.get(mid).tokenID < newPosting.tokenID) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return false;
+    }
+
     private List<KGramPostingsEntry> insertSorted(List<KGramPostingsEntry> postings, KGramPostingsEntry newPosting) {
-        
+        if (postings == null) {
+            postings = new ArrayList<KGramPostingsEntry>();
+            postings.add(newPosting);
+            return postings;
+        }
+
         List<KGramPostingsEntry> newPostings = new ArrayList<KGramPostingsEntry>();
         int i = 0;
         while (i < postings.size() && postings.get(i).tokenID < newPosting.tokenID) {
             newPostings.add(postings.get(i));
-            if(postings.get(i).tokenID == newPosting.tokenID) {
-                return postings;
-            }
             i++;
         }
         newPostings.add(newPosting);
         while (i < postings.size()) {
             newPostings.add(postings.get(i));
-            if(postings.get(i).tokenID == newPosting.tokenID) {
-                return postings;
-            }
             i++;
         }
         return newPostings;
     }
+    
 
 
     /** Get postings for the given k-gram */

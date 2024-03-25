@@ -8,7 +8,7 @@
 package ir;
 
 
-public class KGramPostingsEntry implements Comparable<KGramPostingsEntry> {
+public class KGramPostingsEntry {
     int tokenID;
 
     public KGramPostingsEntry(int tokenID) {
@@ -19,11 +19,12 @@ public class KGramPostingsEntry implements Comparable<KGramPostingsEntry> {
         this.tokenID = other.tokenID;
     }
 
-    public String toString() {
-        return tokenID + "";
-    }
-
-    public int compareTo(KGramPostingsEntry other) {
-        return Integer.compare(tokenID, other.tokenID);
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof KGramPostingsEntry) {
+            KGramPostingsEntry otherEntry = (KGramPostingsEntry) other;
+            return tokenID == otherEntry.tokenID;
+        }
+        return false;
     }
 }
