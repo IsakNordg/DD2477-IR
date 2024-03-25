@@ -110,9 +110,11 @@ public class Engine {
                 gui.displayInfoText( String.format( "Indexing done in %.1f seconds.", elapsedTime/1000.0 ));
                 index.cleanup();
 
-                System.out.println("Number of words containing \"ve\"" + kgIndex.getPostings("ve").size() );
-                System.out.println("Number of words containing \"th\" and \"he\"" + 
-                                    kgIndex.intersect(kgIndex.getPostings("th"), kgIndex.getPostings("he")).size() );
+                if(kgIndex != null){
+                    System.out.println("Number of words containing \"ve\": " + kgIndex.getPostings("ve").size() );
+                    System.out.println("Number of words containing \"th\" and \"he\": " + 
+                                        kgIndex.intersect(kgIndex.getPostings("th"), kgIndex.getPostings("he")).size() );
+                }
             }
         } else {
             gui.displayInfoText( "Index is loaded from disk" );

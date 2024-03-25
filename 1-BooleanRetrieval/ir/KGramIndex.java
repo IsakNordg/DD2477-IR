@@ -54,6 +54,9 @@ public class KGramIndex {
         if(p1 == null) return p2;
         if(p2 == null) return p1;
 
+        p1 = new ArrayList<KGramPostingsEntry>(p1);
+        p2 = new ArrayList<KGramPostingsEntry>(p2);
+
         int i = 0, j = 0;
         List<KGramPostingsEntry> result = new ArrayList<KGramPostingsEntry>();
         while (i < p1.size() && j < p2.size()){
@@ -91,16 +94,34 @@ public class KGramIndex {
             }
             
             // This could be made faster I think
+            /* 
             List<KGramPostingsEntry> oldPostings = (List<KGramPostingsEntry>) index.get(kgram);
             KGramPostingsEntry newPosting = new KGramPostingsEntry(ID);
 
             List<KGramPostingsEntry> postings = insertSorted(oldPostings, newPosting);
+            */
 
-            index.put(kgram, postings);
+            List<KGramPostingsEntry> postings = index.get(kgram);
+            KGramPostingsEntry newPosting = new KGramPostingsEntry(ID);
+            
+            if(postings.size() == 0){
+                postings.add(newPosting);
+            }else{
+                int j = 0;
+                while(j < postings.size() && postings.get(j).tokenID < newPosting.tokenID){
+                    j++;
+                }
+                if(j == postings.size()){
+                    postings.add(newPosting);
+                }else if(postings.get(j).tokenID > newPosting.tokenID){
+                    postings.add(j, newPosting);
+                }
+            }
         }
     }
 
     private List<KGramPostingsEntry> insertSorted(List<KGramPostingsEntry> postings, KGramPostingsEntry newPosting) {
+        
         List<KGramPostingsEntry> newPostings = new ArrayList<KGramPostingsEntry>();
         int i = 0;
         while (i < postings.size() && postings.get(i).tokenID < newPosting.tokenID) {
@@ -124,7 +145,6 @@ public class KGramIndex {
 
     /** Get postings for the given k-gram */
     public List<KGramPostingsEntry> getPostings(String kgram) {
-        
         if (index.containsKey(kgram)) {
             return index.get(kgram);
         }
