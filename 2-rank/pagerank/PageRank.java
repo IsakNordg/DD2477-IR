@@ -534,10 +534,11 @@ public class PageRank {
 
 	// Prints all documents and their corresponding rank to a file
 	void printToFile( double[] a ) {
+		System.out.println("Printing to file");
 		try {
 			PrintWriter writer = new PrintWriter("../../1-BooleanRetrieval/pagerank.txt", "UTF-8");
 			for ( int i=0; i<a.length; i++ ) {
-				writer.print( docName[i]);
+				writer.print( i );
 				writer.print(" ");
 				writer.println(a[i]);
 			}

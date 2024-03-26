@@ -41,7 +41,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     public void computeScore(double idf, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
         
         if(rankingType == RankingType.PAGERANK){
-            this.score = pagerank;
+            this.score = prWeight * pagerank;
             return;
         }
         
@@ -51,7 +51,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         if(rankingType == RankingType.TF_IDF){
             score = tfidf;
         } else if(rankingType == RankingType.COMBINATION){
-            score = prWeight * pagerank + (1 - prWeight) * tfidf;
+            score = prWeight * pagerank + tfidf;
         }
     }
     
