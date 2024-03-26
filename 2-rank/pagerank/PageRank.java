@@ -12,7 +12,7 @@ public class PageRank {
 
 	final static Double c = 0.85;
 
-	final static boolean monteCarlo = true;
+	final static boolean monteCarlo = false;
 
 	final static boolean iterateTilStable = false;
 
@@ -36,7 +36,7 @@ public class PageRank {
      *   Convergence criterion: Transition probabilities do not 
      *   change more that EPSILON from one iteration to another.
      */
-    final static double EPSILON = 0.000001;
+    final static double EPSILON = 0.000000001;
 
     /**
      *   Mapping from document names to document numbers.
@@ -220,8 +220,8 @@ public class PageRank {
 
 			}
 
-			print( a );
-			// printToFile( a );
+			// print( a );
+			printToFile( a );
 			// printError( a );
 		}else if(!iterateTilStable){	// Monte Carlo approximation
 

@@ -105,7 +105,6 @@ public class Engine {
                     index.createAndWriteEuclideanIndex(euclidean_File);
                 }
 
-
                 long elapsedTime = System.currentTimeMillis() - startTime;
                 gui.displayInfoText( String.format( "Indexing done in %.1f seconds.", elapsedTime/1000.0 ));
                 index.cleanup();

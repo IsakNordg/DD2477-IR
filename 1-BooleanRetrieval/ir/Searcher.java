@@ -22,7 +22,7 @@ public class Searcher {
 
     private boolean printDCG = true;
 
-    Double prWeight = 0.5;
+    Double prWeight = 0.98;
 
     /** The index to be searched by this Searcher. */
     Index index;

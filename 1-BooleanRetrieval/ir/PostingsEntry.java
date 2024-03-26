@@ -39,6 +39,7 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     //
 
     public void computeScore(double idf, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
+        
         if(rankingType == RankingType.PAGERANK){
             this.score = pagerank;
             return;
@@ -47,8 +48,6 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         int tf = offset.size();                    // Number of occurrences of term in document
         double tfidf = tf * idf;
 
-
-        // Should I normalize before or after combining with pagerank?
         if(rankingType == RankingType.TF_IDF){
             score = tfidf;
         } else if(rankingType == RankingType.COMBINATION){
