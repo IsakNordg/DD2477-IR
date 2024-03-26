@@ -47,22 +47,17 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
         int tf = offset.size();                    // Number of occurrences of term in document
         double tfidf = tf * idf;
 
+        // normalize tfidf
+        if(normType == NormalizationType.NUMBER_OF_WORDS){
+            tfidf = tfidf / index.docLengths.get(docID);
+        }else if(normType == NormalizationType.EUCLIDEAN){
+            tfidf = tfidf / index.euclidianLengths.get(docID);
+        }
+
         if(rankingType == RankingType.TF_IDF){
             score = tfidf;
-
-            if(normType == NormalizationType.NUMBER_OF_WORDS){
-                score = score / index.docLengths.get(docID);
-            }else if(normType == NormalizationType.EUCLIDEAN){
-                score = score / index.euclidianLengths.get(docID);
-            }
-
         } else if(rankingType == RankingType.COMBINATION){
-
-            if(normType == NormalizationType.NUMBER_OF_WORDS){
-                score = prWeight * pagerank + tfidf / index.docLengths.get(docID);
-            }else if(normType == NormalizationType.EUCLIDEAN){
-                score = prWeight * pagerank + tfidf / index.euclidianLengths.get(docID);
-            }
+            score = prWeight * pagerank + tfidf;
         }
     }
     

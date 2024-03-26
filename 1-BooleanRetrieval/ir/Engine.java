@@ -117,8 +117,12 @@ public class Engine {
             }
         } else {
             gui.displayInfoText( "Index is loaded from disk" );
-            if(!euclidianExists){
-                System.out.println("Euclidean index does not exist. Please re-index");
+            // check if euclidean index exists
+            File euclideanIndex = new File(euclidean_File);
+            if (euclideanIndex.exists()) {
+                index.readEuclideanIndex(euclidean_File);
+            } else {
+                System.out.println("Euclidean index does not exist. Please re-index.");
             }
         }
     }
