@@ -51,7 +51,7 @@ public class KGramIndex {
      *  Get intersection of two postings lists
      */
     public List<KGramPostingsEntry> intersect(List<KGramPostingsEntry> p1, List<KGramPostingsEntry> p2) {
-        long startTime = System.nanoTime();
+        
         if(p1 == null) return p2;
         if(p2 == null) return p1;
 
@@ -72,14 +72,9 @@ public class KGramIndex {
                 j++;
             }
         }
-        long endTime = System.nanoTime();
-        intersectTime += endTime - startTime;
-        // System.out.println("Intersect time: " + intersectTime);
+
         return result;
     }
-
-    public long containsTime = 0;
-    public long intersectTime = 0;
 
     /** Inserts all k-grams from a token into the index. */
     public void insert( String token ) {
@@ -102,10 +97,7 @@ public class KGramIndex {
             List<KGramPostingsEntry> postings = (List<KGramPostingsEntry>) index.get(kgram);
             KGramPostingsEntry newPosting = new KGramPostingsEntry(ID);
 
-            // long startTime = System.nanoTime();
             if(!contains(postings, newPosting)){
-                // long endTime = System.nanoTime();
-                // containsTime += endTime - startTime;
 
                 postings.add(newPosting);
                 index.put(kgram, postings);
