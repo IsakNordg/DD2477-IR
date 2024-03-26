@@ -39,7 +39,6 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
     //
 
     public void computeScore(double idf, RankingType rankingType, NormalizationType normType, Index index, double prWeight){
-        
         if(rankingType == RankingType.PAGERANK){
             this.score = prWeight * pagerank;
             return;
@@ -50,8 +49,20 @@ public class PostingsEntry implements Comparable<PostingsEntry>, Serializable {
 
         if(rankingType == RankingType.TF_IDF){
             score = tfidf;
+
+            if(normType == NormalizationType.NUMBER_OF_WORDS){
+                score = score / index.docLengths.get(docID);
+            }else if(normType == NormalizationType.EUCLIDEAN){
+                score = score / index.euclidianLengths.get(docID);
+            }
+
         } else if(rankingType == RankingType.COMBINATION){
-            score = prWeight * pagerank + tfidf;
+
+            if(normType == NormalizationType.NUMBER_OF_WORDS){
+                score = prWeight * pagerank + tfidf / index.docLengths.get(docID);
+            }else if(normType == NormalizationType.EUCLIDEAN){
+                score = prWeight * pagerank + tfidf / index.euclidianLengths.get(docID);
+            }
         }
     }
     

@@ -149,16 +149,6 @@ public class Searcher {
             }
         }
 
-        // Normalize score
-        for(int i = 0; i < result.size(); i++){
-            double score = result.get(i).score;
-            if(normType == NormalizationType.NUMBER_OF_WORDS){
-                result.get(i).score = score / index.docLengths.get( result.get(i).docID );
-            }else if(normType == NormalizationType.EUCLIDEAN){
-                result.get(i).score = score / index.euclidianLengths.get( result.get(i).docID );
-            }
-        }
-
         Collections.sort(result.list);
 
         if(printDCG){
